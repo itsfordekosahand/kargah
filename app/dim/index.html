@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#FF9900" />
+    <meta name="color-scheme" content="dark light" />
+    <title>ابعاد کابینت</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+    <script>
+      // ثبت service worker — فقط روی بستر امن (https یا لوکال).
+      // «127.0.0.1» هم مثل localhost بستر امن محسوب می‌شود؛ وگرنه در
+      // پیش‌نمایش محلی اصلاً ثبت نمی‌شد و حالت آفلاین هرگز تست نمی‌شد.
+      if ('serviceWorker' in navigator) {
+        var secure = location.protocol === 'https:' ||
+          location.hostname === 'localhost' ||
+          location.hostname === '127.0.0.1' ||
+          location.hostname === '[::1]';
+        if (secure) {
+          window.addEventListener('load', function () {
+            navigator.serviceWorker.register('./sw.js').catch(function (e) {
+              console.warn('SW failed', e);
+            });
+          });
+        }
+      }
+    </script>
+  </body>
+</html>

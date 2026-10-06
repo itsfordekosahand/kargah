@@ -1,0 +1,12 @@
+# ساخته‌شده توسط scripts/build.mjs — هرگز در گیت نمی‌رود
+assets/
+
+# وابستگی‌ها و حالت محلی
+node_modules/
+app/*/node_modules/
+app/*/dist/
+.wrangler/
+.dev.vars
+
+# خروجی‌های قدیمی هر ماژول
+dist/

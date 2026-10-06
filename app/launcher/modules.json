@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "updated": "2026-10-05",
+  "modules": [
+    {
+      "id": "anbar",
+      "title": "انبار کارگاه",
+      "subtitle": "ابزار، ورق، فاکتور، امانت ابزار و شمارش موجودی",
+      "href": "anbar/",
+      "manifest": "anbar/manifest.webmanifest",
+      "icon": "icons/icon-192.png",
+      "accent": "#ff9900",
+      "scope": "anbar/"
+    },
+    {
+      "id": "fin",
+      "title": "مالی",
+      "subtitle": "چک، بدهی، دریافتی‌ها و هزینه‌ها",
+      "href": "fin/",
+      "manifest": "fin/manifest.webmanifest",
+      "icon": "icons/icon-192.png",
+      "accent": "#ff9900",
+      "scope": "fin/"
+    },
+    {
+      "id": "dim",
+      "title": "آنالیز",
+      "subtitle": "محاسبه ابعاد و لیست قطعات کابینت با فرمول‌های قابل ویرایش",
+      "href": "dim/",
+      "manifest": "dim/manifest.webmanifest",
+      "icon": "icons/icon-192.png",
+      "accent": "#ff9900",
+      "scope": "dim/"
+    }
+  ]
+}

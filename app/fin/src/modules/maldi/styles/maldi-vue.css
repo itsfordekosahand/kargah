@@ -1,0 +1,51 @@
+/* =====================================================================
+   افزوده‌های نسخهٔ Vue (پورت) — نسبت به مبدأ چیزی حذف نشده، فقط اضافه شده:
+   1) فونت self-hosted (آفلاین)  2) لایهٔ آیکون  3) اهداف لمسی ≥34px
+   4) فونت ورودی 16px در موبایل  5) استایل Toast بر اساس پالت برنامه
+   بعد از maldi.css بارگذاری می‌شود تا override ها برنده باشند.
+   ===================================================================== */
+@font-face{
+  font-family:'Vazirmatn';
+  font-style:normal;
+  font-weight:100 900;
+  font-display:swap;
+  src:url('./fonts/Vazirmatn-Variable.woff2') format('woff2');
+}
+
+/* آیکون‌ها به‌صورت SVG داخل span هستند؛ display:contents باعث می‌شود جای
+   دقیق خودِ svg در چیدمان حفظ شود (معادل رندر مستقیم JSX در مبدأ). */
+.ico{display:contents}
+
+/* معادل style={{width:28,height:28}} در مبدأ — با کلاس تا در موبایل قابل باشد */
+.btn-icon-sm{width:28px;height:28px;font-size:13px}
+
+/* دکمهٔ پرداخت در جدول هزینه‌ها — استایل inline مبدأ به‌صورت کلاس */
+.badge.pay-btn{background:#ef4444;color:#fff;cursor:pointer;border:none;font-family:inherit;padding:5px 12px;font-size:11.5px;line-height:1.4}
+.badge.pay-btn.paid{background:#22c55e}
+
+/* Toast با پالت برنامه (PrimeVue Toast به‌جای Toast دستی مبدأ) */
+.p-toast{z-index:400}
+.p-toast-message{background:var(--surface);color:#fff;border:1px solid var(--border);border-right:4px solid var(--accent);border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);font-family:'Vazirmatn',sans-serif}
+.p-toast-message-content{padding:10px 16px;gap:8px}
+.p-toast-summary{font-size:13px;font-weight:500;color:#fff}
+.p-toast-icon{color:var(--accent)}
+.p-toast-close-button{color:var(--text-muted)}
+.p-toast-close-button:hover{color:#fff}
+
+/* ---- موبایل-فیرست: اهداف لمسی و فونت ورودی (فقط عرض ≤640px) ---- */
+@media(max-width:640px){
+  input,select,textarea,.form-input{font-size:16px}
+  .btn,.btn-sm,.btn-icon,.btn-icon-sm,.page-btn,.modal-close,.tab-item,
+  .month-selector button,.jdp-actions button,.jdp-nav button,.badge.pay-btn,
+  .sidebar-footer .bk-btn,.nav-item,.filter-actions .btn{min-height:34px}
+  .btn-icon,.btn-icon-sm,.modal-close,.month-selector button,.jdp-nav button{min-width:34px}
+  .btn-icon,.btn-icon-sm{width:34px;height:34px}
+  .month-selector button{width:34px;height:34px}
+  .jdp-cell{min-height:34px}
+  .jdp-actions button{font-size:13px}
+  .p-toast-message-content{padding:12px 14px}
+}
+@media(max-width:400px){
+  .btn,.btn-sm{min-height:34px}
+  .jdp-cell{min-height:34px;font-size:12.5px}
+}

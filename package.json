@@ -1,0 +1,18 @@
+{
+  "name": "kargah",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "کارگاه — محصول یکپارچهٔ دکور سهند: لانچر + ماژول‌های مالی، انبار و ابعاد، با API واحد روی Cloudflare Workers",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "db:init:local": "wrangler d1 execute kargah-anbar --file schema/anbar.sql --local && wrangler d1 execute kargah-ktd --file schema/ktd.sql --local",
+    "db:init": "wrangler d1 execute kargah-anbar --file schema/anbar.sql --remote && wrangler d1 execute kargah-ktd --file schema/ktd.sql --remote",
+    "dev": "npm run build && npm run db:init:local && wrangler dev",
+    "deploy": "node scripts/deploy.mjs",
+    "seed": "node scripts/seed.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.24.0"
+  }
+}

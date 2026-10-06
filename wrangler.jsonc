@@ -1,0 +1,43 @@
+// =====================================================================
+// پیکربندی Cloudflare — کارگاه (Worker واحد)
+// ---------------------------------------------------------------------
+// این Worker همه‌کاره است:
+//   ۱) فایل‌های ایستا (assets/) را سرو می‌کند — لانچر + سه ماژول
+//   ۲) /anbar/api/*  → دیتابیس D1 ماژول انبار (binding: DB)
+//   ۳) /ktd/api/*    → دیتابیس D1 ماژول مالی   (binding: KTD_DB)
+//
+// دکمهٔ Deploy to Cloudflare در README:
+//   خودِ دکمه هر دو دیتابیس را می‌سازد (provision)، به binding ها وصل
+//   می‌کند و شناسه‌هایشان را در همین فایل می‌نویسد — یعنی هیچ کار
+//   دستی‌ای لازم نیست؛ فقط اتورایز + دپلوی.
+// =====================================================================
+{
+  "name": "kargah-app",
+  "compatibility_date": "2026-10-06",
+  "main": "src/index.js",
+
+  // پوشهٔ خروجی بیلد — همان چیزی که scripts/build.mjs می‌سازد
+  "assets": {
+    "directory": "assets"
+  },
+
+  // دو دیتابیس D1 — database_id عمداً خالی است تا دکمهٔ Deploy آن‌ها را
+  // بسازد و شناسه را اینجا بنویسد (Provision).
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "kargah-anbar"
+    },
+    {
+      "binding": "KTD_DB",
+      "database_name": "kargah-ktd"
+    }
+  ],
+
+  // کلیدهای مشترک — همان مقادیری که در کد فرانت هستند (امنیت = راز
+  // مشترک، درست مثل نسخهٔ قبل؛ Worker فقط تطبیق می‌دهد).
+  "vars": {
+    "ANBAR_API_KEY": "wYb9XPNSAGPE7ZLEe98hypIfzo8cvZZfHWte6Ug6myGutboJ",
+    "KTD_API_KEY": "OD6Zgiu5tmO5IN2bxHqSzLDgH4564vtbdAUkdcnAwCBtxAmw"
+  }
+}

@@ -1,0 +1,29 @@
+.cd-app { min-height: 100vh; background: var(--cd-bg, #111111); }
+
+.cd-appbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px 14px;
+  background: var(--cd-surface, #1A1A1A);
+  border-bottom: 1px solid var(--cd-border, #2A2A2A);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.cd-appbar__brand {
+  font-weight: 900;
+  font-size: .98rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-inline-end: 10px;
+  color: var(--cd-text, #FFFFFF);
+}
+
+.cd-appbar__brand i { color: var(--cd-accent, #FF9900); }
+
+.w-full { width: 100%; }
