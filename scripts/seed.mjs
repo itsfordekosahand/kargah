@@ -28,8 +28,10 @@ const KTD_KEY = 'OD6Zgiu5tmO5IN2bxHqSzLDgH4564vtbdAUkdcnAwCBtxAmw'
 const ANBAR_TABLES = ['tools', 'sheets', 'hardware', 'templates', 'jobs', 'lock']
 const KTD_TABLES = ['lock']
 
+const UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36'
+
 async function getJson(url, key) {
-  const r = await fetch(url, { headers: { 'X-API-Key': key }, cache: 'no-store' })
+  const r = await fetch(url, { headers: { 'X-API-Key': key, 'User-Agent': UA }, cache: 'no-store' })
   if (!r.ok) throw new Error(`GET ${url} → HTTP ${r.status}`)
   return r.json()
 }
@@ -37,7 +39,7 @@ async function getJson(url, key) {
 async function putJson(url, key, body) {
   const r = await fetch(url, {
     method: 'PUT',
-    headers: { 'X-API-Key': key, 'Content-Type': 'application/json' },
+    headers: { 'X-API-Key': key, 'Content-Type': 'application/json', 'User-Agent': UA },
     body: JSON.stringify(body),
     cache: 'no-store'
   })
