@@ -27,6 +27,39 @@ const ANBAR_TABLES = ['tools', 'sheets', 'hardware', 'templates', 'jobs', 'lock'
 /** حداکثر اندازهٔ یک payload (جلوی سوءاستفاده و خطای D1 را می‌گیرد) */
 const MAX_BODY = 6_000_000
 
+/* ---------- اسکیمای خودکار (Self-init) ----------
+ * دکمهٔ Deploy فقط بیلد و انتشار می‌کند؛ اسکیما را خودِ Worker در نخستین
+ * درخواست API می‌سازد. CREATE TABLE IF NOT EXISTS هم‌زمان امن است، پس
+ * حتی اگر چند درخواست با هم برسند مشکلی پیش نمی‌آید. */
+const ANBAR_DDL = [
+  `CREATE TABLE IF NOT EXISTS tools     (id TEXT PRIMARY KEY, data TEXT NOT NULL DEFAULT '{}')`,
+  `CREATE TABLE IF NOT EXISTS sheets    (id TEXT PRIMARY KEY, data TEXT NOT NULL DEFAULT '{}')`,
+  `CREATE TABLE IF NOT EXISTS hardware  (id TEXT PRIMARY KEY, data TEXT NOT NULL DEFAULT '{}')`,
+  `CREATE TABLE IF NOT EXISTS templates (id TEXT PRIMARY KEY, data TEXT NOT NULL DEFAULT '{}')`,
+  `CREATE TABLE IF NOT EXISTS jobs      (id TEXT PRIMARY KEY, data TEXT NOT NULL DEFAULT '{}')`,
+  `CREATE TABLE IF NOT EXISTS lock      (id TEXT PRIMARY KEY, data TEXT NOT NULL DEFAULT '{}')`
+]
+const KTD_DDL = [
+  `CREATE TABLE IF NOT EXISTS ktd_dump (id TEXT PRIMARY KEY, data TEXT NOT NULL DEFAULT '{}')`,
+  `CREATE TABLE IF NOT EXISTS lock     (id TEXT PRIMARY KEY, data TEXT NOT NULL DEFAULT '{}')`
+]
+
+/* پرچم در سطح isolate — بعد از اولین بار، هر درخواست فقط یک بررسی بولی است */
+let anbarSchemaReady = false
+let ktdSchemaReady = false
+
+async function ensureAnbarSchema(env) {
+  if (anbarSchemaReady) return
+  await env.DB.batch(ANBAR_DDL.map(sql => env.DB.prepare(sql)))
+  anbarSchemaReady = true
+}
+
+async function ensureKtdSchema(env) {
+  if (ktdSchemaReady) return
+  await env.KTD_DB.batch(KTD_DDL.map(sql => env.KTD_DB.prepare(sql)))
+  ktdSchemaReady = true
+}
+
 /* ---------- کمکی‌های عمومی ---------- */
 
 function json(data, status = 200) {
@@ -284,12 +317,26 @@ export default {
     }
 
     if (path.startsWith('/anbar/api/')) {
-      const res = await anbarApi(request, env, path.slice('/anbar/api/'.length))
+      let res
+      try {
+        await ensureAnbarSchema(env)
+        res = await anbarApi(request, env, path.slice('/anbar/api/'.length))
+      } catch (err) {
+        console.error('anbar schema/err', err && err.message)
+        res = fail(500, 'خطای داخلی سرور')
+      }
       return withCors(res)
     }
 
     if (path.startsWith('/ktd/api/')) {
-      const res = await ktdApi(request, env, path.slice('/ktd/api/'.length))
+      let res
+      try {
+        await ensureKtdSchema(env)
+        res = await ktdApi(request, env, path.slice('/ktd/api/'.length))
+      } catch (err) {
+        console.error('ktd schema/err', err && err.message)
+        res = fail(500, 'خطای داخلی سرور')
+      }
       return withCors(res)
     }
 
