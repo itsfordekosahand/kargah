@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-10-05",
+  "updated": "2026-10-08",
   "modules": [
     {
       "id": "anbar",
@@ -25,7 +25,7 @@
     {
       "id": "dim",
       "title": "آنالیز",
-      "subtitle": "محاسبه ابعاد و لیست قطعات کابینت با فرمول‌های قابل ویرایش",
+      "subtitle": "محاسبه‌گر کابینت: تعاریف قالب، پروژه چندکابینتی، فاکتور و خروجی‌ها",
       "href": "dim/",
       "manifest": "dim/manifest.webmanifest",
       "icon": "icons/icon-192.png",

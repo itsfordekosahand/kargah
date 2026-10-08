@@ -1,32 +1,1551 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fa" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#FF9900" />
-    <meta name="color-scheme" content="dark light" />
-    <title>ابعاد کابینت</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
-    <script>
-      // ثبت service worker — فقط روی بستر امن (https یا لوکال).
-      // «127.0.0.1» هم مثل localhost بستر امن محسوب می‌شود؛ وگرنه در
-      // پیش‌نمایش محلی اصلاً ثبت نمی‌شد و حالت آفلاین هرگز تست نمی‌شد.
-      if ('serviceWorker' in navigator) {
-        var secure = location.protocol === 'https:' ||
-          location.hostname === 'localhost' ||
-          location.hostname === '127.0.0.1' ||
-          location.hostname === '[::1]';
-        if (secure) {
-          window.addEventListener('load', function () {
-            navigator.serviceWorker.register('./sw.js').catch(function (e) {
-              console.warn('SW failed', e);
-            });
-          });
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>محاسبه‌گر کارگاه کابینت</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:Vazirmatn,"Segoe UI",Tahoma,Arial,sans-serif;background:#f1f5f9;color:#0f172a;font-size:15px}
+header{background:#0f172a;color:#fff;display:flex;gap:14px;align-items:center;padding:10px 14px;position:sticky;top:0;z-index:20;flex-wrap:wrap}
+header .brand{font-weight:700;font-size:15px;white-space:nowrap}
+nav{display:flex;gap:6px;flex-wrap:wrap}
+nav button{background:none;border:0;color:#94a3b8;padding:8px 12px;border-radius:9px;cursor:pointer;font:inherit;font-size:14px}
+nav button.on{background:#2563eb;color:#fff}
+#app{max-width:1120px;margin:16px auto;padding:0 14px 70px}
+.head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:6px 0 14px}
+h2{margin:0;font-size:20px}
+h3{margin:0 0 8px;font-size:16px}
+h4{margin:0 0 8px;font-size:15px}
+.hint{color:#64748b;font-size:13px;margin-top:4px;line-height:1.9}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin-bottom:12px}
+.sec{margin-top:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.card .t{font-weight:700;font-size:16px}
+.card .s{color:#64748b;font-size:13px;margin-top:6px}
+.acts{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.btn{background:#2563eb;color:#fff;border:0;border-radius:10px;padding:9px 15px;cursor:pointer;font:inherit;font-size:14px}
+.btn:hover{background:#1d4ed8}
+.btn.g{background:#059669}
+.btn2{background:#e2e8f0;color:#0f172a;border:0;border-radius:10px;padding:7px 11px;cursor:pointer;font:inherit;font-size:13px}
+.btn2:hover{background:#cbd5e1}
+.btn2.red{background:#fee2e2;color:#b91c1c}
+.btn2.red:hover{background:#fecaca}
+.icon{background:none;border:0;color:#94a3b8;font-size:20px;cursor:pointer;line-height:1;padding:2px 6px}
+.icon:hover{color:#b91c1c}
+.inline{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.inline input{flex:1;min-width:180px}
+input,select,textarea{font:inherit;padding:8px 10px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:#0f172a}
+input:focus,select:focus{outline:2px solid #93c5fd;border-color:#2563eb}
+.row{display:flex;gap:8px;align-items:center;padding:5px 0;flex-wrap:wrap}
+.row .lbl{width:180px}
+.row .val{width:130px}
+.row .fml{flex:1;min-width:200px;direction:ltr;text-align:left;font-family:Consolas,Menlo,monospace;font-size:13px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:999px;padding:5px 11px;font-size:13px}
+.chip b{color:#1d4ed8}
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.tabs button{border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;font:inherit;font-size:14px}
+.tabs button.on{background:#0f172a;color:#fff;border-color:#0f172a}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:14px;min-width:520px}
+th,td{border:1px solid #e2e8f0;padding:7px 9px;text-align:right;white-space:nowrap}
+th{background:#f8fafc;font-size:13px}
+td.wrap{white-space:normal}
+.err{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;border-radius:12px;padding:12px;margin-bottom:12px;font-size:14px;line-height:2}
+.help{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:12px;font-size:13px;color:#334155;line-height:2.2;margin-top:10px}
+.help code{background:#e2e8f0;border-radius:5px;padding:1px 6px;direction:ltr;display:inline-block}
+.phead{display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none;flex-wrap:wrap}
+.phead b{font-size:15px}
+.phead .chev{color:#2563eb;font-size:13px}
+.pfields{margin-top:12px;border-top:1px dashed #e2e8f0;padding-top:10px}
+.cb{display:flex;align-items:center;gap:6px;font-size:14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:7px 10px;cursor:pointer}
+.cb input{margin:0}
+.sublbl{font-size:13px;color:#475569;font-weight:700;margin:10px 0 6px}
+/* پیش‌نمایش بصری قطعه */
+.pv{position:relative;width:74px;height:50px;flex:0 0 auto}
+.pv .core{position:absolute;inset:7px;background:#f8fafc;border:1px solid #cbd5e1}
+.pv .e{position:absolute}
+.pv .pvc.u{top:2px;left:5px;right:5px;height:5px;background:#f59e0b;border-radius:2px}
+.pv .pvc.d{bottom:2px;left:5px;right:5px;height:5px;background:#f59e0b;border-radius:2px}
+.pv .pvc.l{left:2px;top:5px;bottom:5px;width:5px;background:#f59e0b;border-radius:2px}
+.pv .pvc.r{right:2px;top:5px;bottom:5px;width:5px;background:#f59e0b;border-radius:2px}
+.pv .grv.u{top:8px;left:10px;right:10px;height:2px;background:#2563eb}
+.pv .grv.d{bottom:8px;left:10px;right:10px;height:2px;background:#2563eb}
+.pv .grv.l{left:8px;top:10px;bottom:10px;width:2px;background:#2563eb}
+.pv .grv.r{right:8px;top:10px;bottom:10px;width:2px;background:#2563eb}
+.legend{display:flex;gap:14px;font-size:12px;color:#475569;align-items:center;flex-wrap:wrap}
+.legend i{display:inline-block;width:16px;height:5px;border-radius:2px;vertical-align:middle;margin-left:5px}
+.sumcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px}
+.sumcard{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px}
+.sumcard .k{font-size:12px;color:#64748b}
+.sumcard .v{font-size:19px;font-weight:700;color:#0f172a;margin-top:4px}
+.empty{background:#fff;border:1px dashed #cbd5e1;border-radius:14px;padding:26px;text-align:center;color:#64748b}
+#toast{position:fixed;bottom:18px;right:18px;background:#0f172a;color:#fff;padding:11px 17px;border-radius:11px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:60}
+#toast.on{opacity:1}
+.prow{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin-bottom:9px;flex-wrap:wrap}
+.prow .no{background:#0f172a;color:#fff;border-radius:8px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:13px;flex:0 0 auto}
+.prow .nm{font-weight:700}
+.prow .vl{color:#475569;font-size:13px;flex:1;min-width:150px}
+.prow .acts{margin:0}
+#printArea{display:none}
+.emptymini{color:#94a3b8;font-size:13px;padding:6px 0}
+@media (max-width:640px){
+  #app{padding:0 10px 60px}
+  .row .lbl,.row .val{width:100%}
+  .row .fml{min-width:100%}
+  .grid{grid-template-columns:1fr 1fr}
+  header{gap:8px}
+  nav button{padding:7px 9px;font-size:13px}
+}
+@media print{
+  body>*{display:none!important}
+  #printArea{display:block!important}
+  @page{size:A4;margin:12mm}
+  .rpt h1{font-size:19px;margin:0 0 6px}
+  .rpt h3{font-size:14px;margin:16px 0 6px}
+  .rpt table{width:100%;min-width:0;border-collapse:collapse;font-size:12px}
+  .rpt th,.rpt td{border:1px solid #555;padding:4px 6px;text-align:right}
+  .rpt th{background:#eee}
+}
+.toks{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 4px}
+.tok{background:#eef2ff;border:1px solid #c7d2fe;border-radius:999px;padding:3px 10px;font-size:12px;cursor:pointer;color:#3730a3;font-family:inherit;line-height:1.6}
+.tok:hover{background:#e0e7ff;border-color:#a5b4fc}
+.tklbl{font-size:11px;color:#94a3b8}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">🪚 محاسبه‌گر کابینت</div>
+  <nav id="nav"></nav>
+</header>
+<main id="app"></main>
+<div id="toast"></div>
+<div id="printArea"></div>
+
+<script>
+'use strict';
+
+/* ============================= ذخیره‌سازی ============================= */
+const LS_KEY = 'kargah_calc_v1';
+const DEF = {settings:{sheetL:2800,sheetW:2060,waste:10,unit:'mm'},categories:[],models:[],projects:[]};
+
+/* مثال کامل از پیش‌پر‌شده: هر بخش رو پر می‌کنه تا نحوه اتصال‌ها دیده بشه
+   ورودی آزاد (طول) → ورودی فرمولی (عرض داخلی) → متغیر واسط (W_door) → قطعه (در) */
+const DEMO = {
+  settings:{sheetL:2800,sheetW:2060,waste:10,unit:'mm'},
+  categories:[{id:'c1',name:'زمینی'},{id:'c2',name:'هوایی'}],
+  models:[{
+    id:'m1',catId:'c1',name:'تک‌در زمینی (مثال)',
+    inputs:[
+      {id:'i1',label:'طول',mode:'free',value:'800',formula:''},
+      {id:'i2',label:'ارتفاع',mode:'free',value:'720',formula:''},
+      {id:'i3',label:'تعداد در',mode:'free',value:'1',u:'n',formula:''},
+      {id:'i4',label:'عمق',mode:'const',value:'560',formula:''},
+      {id:'i5',label:'ضخامت',mode:'const',value:'16',formula:''},
+      {id:'i6',label:'عرض داخلی',mode:'formula',value:'',formula:'طول - 2 * ضخامت'}
+    ],
+    vars:[{id:'v1',label:'W_door',formula:'عرض داخلی / تعداد در'}],
+    pieces:[
+      {id:'pc1',label:'کف',material:'MDF',thk:'16',countF:'1',lenF:'طول',widF:'عمق',hw:[],
+       groove:{on:false,depth:'8',edges:{}},pvc:{on:false,thk:'2',edges:{}}},
+      {id:'pc2',label:'بغل',material:'MDF',thk:'16',countF:'2',lenF:'ارتفاع',widF:'ضخامت',hw:[],
+       groove:{on:true,depth:'8',edges:{u:true,d:true}},pvc:{on:false,thk:'2',edges:{}}},
+      {id:'pc3',label:'طبقه',material:'MDF',thk:'16',countF:'floor(ارتفاع / 450)',lenF:'عرض داخلی',widF:'عمق - 10',hw:[],
+       groove:{on:false,depth:'8',edges:{}},pvc:{on:false,thk:'2',edges:{}}},
+      {id:'pc4',label:'در',material:'های‌گلاس',thk:'18',countF:'تعداد در',lenF:'ارتفاع - 4',widF:'W_door',hw:[],
+       groove:{on:false,depth:'8',edges:{}},
+       pvc:{on:true,thk:'2',edges:{u:true,d:true,l:true,r:true}},
+       _hwDummy:0}
+    ],
+    hw:[{id:'hm1',label:'پایه',formula:'4'}]
+  }],
+  projects:[{
+    id:'pr1',name:'آشپزخانه رضایی (مثال)',
+    items:[
+      {id:'it1',modelId:'m1',values:{i1:'900',i2:'720',i3:'1'}},
+      {id:'it2',modelId:'m1',values:{i1:'600',i2:'720',i3:'1'}}
+    ]
+  }]
+};
+// یراق‌های قطعه در مثال
+DEMO.models[0].pieces[3].hw=[{id:'h1',label:'لولا',formula:'تعداد * 2'},{id:'h2',label:'دستگیره',formula:'تعداد'}];
+
+delete DEMO.models[0].pieces[3]._hwDummy;
+
+/* ---- مدل‌های آماده‌ی استفاده (مستقیم می‌تونی باهاشون کابینت بسازی) ---- */
+DEMO.models.push(
+{id:'m2',catId:'c1',name:'زمینی دوکشو (آماده)',
+ inputs:[
+   {id:'j1',label:'طول',mode:'free',value:'600',formula:''},
+   {id:'j2',label:'ارتفاع',mode:'free',value:'720',formula:''},
+   {id:'j3',label:'تعداد کشو',mode:'free',value:'3',formula:''},
+   {id:'j4',label:'عمق',mode:'const',value:'560',formula:''},
+   {id:'j5',label:'ضخامت',mode:'const',value:'16',formula:''},
+   {id:'j6',label:'ارتفاع کشو',mode:'const',value:'200',formula:''}
+ ],
+ vars:[],
+ pieces:[
+   {id:'q1',label:'کف',material:'MDF',thk:'16',countF:'1',lenF:'طول',widF:'عمق',hw:[],
+    groove:{on:false,depth:'8',edges:{}},pvc:{on:false,thk:'2',edges:{}}},
+   {id:'q2',label:'بغل',material:'MDF',thk:'16',countF:'2',lenF:'ارتفاع',widF:'ضخامت',hw:[],
+    groove:{on:true,depth:'8',edges:{u:true,d:true}},pvc:{on:false,thk:'2',edges:{}}},
+   {id:'q3',label:'کشو جلو',material:'های‌گلاس',thk:'18',countF:'تعداد کشو',lenF:'ارتفاع کشو',widF:'طول - 4',
+    hw:[{id:'q3h1',label:'ریل',formula:'تعداد * 2'},{id:'q3h2',label:'دستگیره',formula:'تعداد'}],
+    groove:{on:false,depth:'8',edges:{}},pvc:{on:true,thk:'2',edges:{u:true,d:true,l:true,r:true}}},
+   {id:'q4',label:'بغل کشو',material:'MDF',thk:'16',countF:'تعداد کشو * 2',lenF:'عمق - 50',widF:'ارتفاع کشو - 30',hw:[],
+    groove:{on:false,depth:'8',edges:{}},pvc:{on:false,thk:'2',edges:{}}},
+   {id:'q5',label:'کف کشو',material:'MDF',thk:'16',countF:'تعداد کشو',lenF:'طول - 12',widF:'عمق - 50',hw:[],
+    groove:{on:false,depth:'8',edges:{}},pvc:{on:false,thk:'2',edges:{}}}
+ ],
+ hw:[{id:'jhm',label:'پایه',formula:'4'}]},
+{id:'m3',catId:'c2',name:'هوایی تک‌در (آماده)',
+ inputs:[
+   {id:'g1',label:'طول',mode:'free',value:'600',formula:''},
+   {id:'g2',label:'ارتفاع',mode:'free',value:'700',formula:''},
+   {id:'g3',label:'تعداد در',mode:'free',value:'1',u:'n',formula:''},
+   {id:'g4',label:'عمق',mode:'const',value:'350',formula:''},
+   {id:'g5',label:'ضخامت',mode:'const',value:'16',formula:''}
+ ],
+ vars:[],
+ pieces:[
+   {id:'w1',label:'کف',material:'MDF',thk:'16',countF:'1',lenF:'طول',widF:'عمق',hw:[],
+    groove:{on:false,depth:'8',edges:{}},pvc:{on:false,thk:'2',edges:{}}},
+   {id:'w2',label:'بغل',material:'MDF',thk:'16',countF:'2',lenF:'ارتفاع',widF:'ضخامت',hw:[],
+    groove:{on:false,depth:'8',edges:{}},pvc:{on:false,thk:'2',edges:{}}},
+   {id:'w3',label:'طبقه',material:'MDF',thk:'16',countF:'floor(ارتفاع / 450)',lenF:'طول - 2 * ضخامت',widF:'عمق - 10',hw:[],
+    groove:{on:false,depth:'8',edges:{}},pvc:{on:false,thk:'2',edges:{}}},
+   {id:'w4',label:'در',material:'های‌گلاس',thk:'18',countF:'تعداد در',lenF:'ارتفاع - 4',widF:'طول - 2 * ضخامت',
+    hw:[{id:'w4h1',label:'لولا',formula:'تعداد * 2'},{id:'w4h2',label:'دستگیره',formula:'تعداد'}],
+    groove:{on:false,depth:'8',edges:{}},pvc:{on:true,thk:'2',edges:{u:true,d:true,l:true,r:true}}}
+ ],
+ hw:[]}
+);
+// یراق مدل دوکشو
+DEMO.models[1].pieces[2].hw=[{id:'q3h1',label:'ریل',formula:'تعداد * 2'},{id:'q3h2',label:'دستگیره',formula:'تعداد'}];
+
+function loadState(){
+  try{const r = JSON.parse(localStorage.getItem(LS_KEY)); if(r && r.settings && r.categories) return r;}catch(e){}
+  const em=document.getElementById('embdata'); /* فایل HTML ذخیره‌شده با داده */
+  if(em){ try{ const r=JSON.parse(em.textContent); if(r && r.settings && r.categories) return r; }catch(e){} }
+  return JSON.parse(JSON.stringify(DEMO)); /* اولین باز شدن: مثال آماده */
+}
+let S = loadState();
+function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){ toast('ذخیره انجام نشد: '+e.message); } }
+const uid = () => Math.random().toString(36).slice(2,9);
+
+function esc(x){ return String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function nf(n,d){ d = (d==null?2:d); if(typeof n!=='number'||!isFinite(n)) return '—'; const m=Math.pow(10,d); const r=Math.round(n*m)/m; return r.toLocaleString('fa-IR',{maximumFractionDigits:d}); }
+function raw(n){ if(typeof n!=='number'||!isFinite(n)) return ''; return String(Math.round(n*100)/100); }
+function numify(s){ return String(s==null?'':s)
+  .replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+  .replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+  .replace(/٫/g,'.').replace(/٬/g,''); }
+function num(s){ const v=parseFloat(numify(s)); return isNaN(v)?0:v; }
+function nowStr(){ try{ return new Date().toLocaleString('fa-IR'); }catch(e){ return new Date().toISOString().slice(0,16); } }
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),2200); }
+
+/* ============================= موتور فرمول ============================= */
+function tokenize(src, isName){
+  const t=[]; let i=0;
+  const isWordCh=c=>/[A-Za-z0-9\u0600-\u06FF_]/.test(c||'');
+  function scanWord(from){ // اسکن یک کلمه (با نقطه‌ی داخلی مثل W_door)
+    let j=from+1;
+    while(j<src.length){
+      if(isWordCh(src[j])){ j++; continue; }
+      if(src[j]==='.' && isWordCh(src[j+1])){ j++; continue; }
+      break;
+    }
+    return j;
+  }
+  while(i<src.length){
+    const c=src[i];
+    if(/\s/.test(c)){ i++; continue; }
+    if(/[0-9]/.test(c) || (c==='.' && /[0-9]/.test(src[i+1]||''))){
+      let j=i; while(j<src.length && /[0-9.]/.test(src[j])) j++;
+      t.push({t:'num',v:parseFloat(src.slice(i,j))}); i=j; continue;
+    }
+    if(/[A-Za-z\u0600-\u06FF_]/.test(c)){
+      // کلمه‌ی اول + کلمه‌هایی که با فاصله بهش چسبیدن (اسم چندکلمه‌ای مثل «عرض داخلی»)
+      const words=[], ends=[];
+      let e=scanWord(i); words.push(src.slice(i,e)); ends.push(e);
+      let k=e;
+      while(k<src.length && /\s/.test(src[k])){
+        let m=k; while(m<src.length && /\s/.test(src[m])) m++;
+        if(!isWordCh(src[m])) break;
+        const wEnd=scanWord(m);
+        words.push(src.slice(m,wEnd)); ends.push(wEnd);
+        k=wEnd;
+      }
+      let chosen=0;
+      if(isName){
+        for(let w=words.length; w>=1; w--){ if(isName(words.slice(0,w).join(' '))){ chosen=w; break; } }
+      }
+      if(chosen===0) chosen=1; // اگه اسم چندکلمه‌ای شناخته نشد، همون کلمه‌ی اول رو بده تا خطای واضح بده
+      t.push({t:'id',v:words.slice(0,chosen).join(' ')});
+      i=ends[chosen-1];
+      continue;
+    }
+    if('+-*/(),'.indexOf(c)>=0){ t.push({t:c}); i++; continue; }
+    throw new Error('کاراکتر نامعتبر: '+c);
+  }
+  return t;
+}
+function callFn(name,args){
+  const f=String(name).toLowerCase();
+  if(f==='floor') return Math.floor(args[0]);
+  if(f==='ceil')  return Math.ceil(args[0]);
+  if(f==='round') return Math.round(args[0]);
+  if(f==='abs')   return Math.abs(args[0]);
+  if(f==='min')   return Math.min.apply(null,args);
+  if(f==='max')   return Math.max.apply(null,args);
+  throw new Error('تابع ناشناخته: '+name);
+}
+function uF(){ const u=(typeof S!=='undefined'&&S.settings&&S.settings.unit)||'mm'; return u==='cm'?10:(u==='m'?1000:1); }
+function uName(){ const u=(typeof S!=='undefined'&&S.settings&&S.settings.unit)||'mm'; return u==='cm'?'سانتی‌متر':(u==='m'?'متر':'میلی‌متر'); }
+function uPh(){ const u=(typeof S!=='undefined'&&S.settings&&S.settings.unit)||'mm'; return u==='cm'?'(سانتی‌متر)':(u==='m'?'(متر)':'(مم)'); }
+function uFi(i){ const u=i&&i.u; if(u==='n'||u==='mm') return 1; if(u==='cm') return 10; if(u==='m') return 1000; return uF(); }
+function toU(mm,f){ if(mm==null||String(mm).trim()==='') return ''; const n=num(mm); if(!isFinite(n)) return String(mm); const k=(f===undefined?uF():f); return String(Math.round(n/k*1000)/1000); }
+function toMM(x,f){ if(x==null||String(x).trim()==='') return ''; const n=num(x); if(!isFinite(n)) return String(x); const k=(f===undefined?uF():f); return String(Math.round(n*k*100)/100); }
+function ufn(mm,i){ const s=toU(mm,(i===undefined?undefined:uFi(i))); if(s==='') return ''; const d=(String(s).split('.')[1]||'').length; return nf(num(s),d); }
+function normOp(s){ return String(s==null?'':s)
+  .replace(/[×✕⋅∙]/g,'*')
+  .replace(/[÷]/g,'/')
+  .replace(/[−–—]/g,'-')
+  .replace(/[،؛]/g,',')
+  .replace(/٪/g,'%'); }
+function parseEval(src, resolve, isName){
+  const ts=tokenize(normOp(numify(String(src))), isName); let p=0;
+  function peek(){ return ts[p]; }
+  function next(){ return ts[p++]; }
+  function expr(){
+    let v=term();
+    while(peek() && (peek().t==='+'||peek().t==='-')){ const op=next().t; const r=term(); v = op==='+' ? v+r : v-r; }
+    return v;
+  }
+  function term(){
+    let v=unary();
+    while(peek() && (peek().t==='*'||peek().t==='/')){ const op=next().t; const r=unary(); v = op==='*' ? v*r : v/r; }
+    return v;
+  }
+  function unary(){ if(peek() && peek().t==='-'){ next(); return -unary(); } return primary(); }
+  function primary(){
+    const tk=next();
+    if(!tk) throw new Error('فرمول ناقص است');
+    if(tk.t==='num') return tk.v;
+    if(tk.t==='('){ const v=expr(); const c=next(); if(!c||c.t!==')') throw new Error('پرانتز بسته نشده'); return v; }
+    if(tk.t==='id'){
+      if(peek() && peek().t==='('){
+        next();
+        const args=[];
+        if(peek() && peek().t!==')'){
+          args.push(expr());
+          while(peek() && peek().t===','){ next(); args.push(expr()); }
+        }
+        const c=next(); if(!c||c.t!==')') throw new Error('پرانتز بسته نشده');
+        return callFn(tk.v,args);
+      }
+      const v=resolve(tk.v);
+      if(typeof v!=='number' || !isFinite(v)) throw new Error('مقدار نامعتبر برای «'+tk.v+'»');
+      return v;
+    }
+    throw new Error('فرمول نامعتبر است');
+  }
+  const out=expr();
+  if(p<ts.length) throw new Error('فرمول اضافه دارد');
+  if(typeof out!=='number' || !isFinite(out)) throw new Error('نتیجه نامعتبر است');
+  return out;
+}
+
+/* ============================= محاسبه یک مدل ============================= */
+const EDGES=[['u','بالا'],['d','پایین'],['l','چپ'],['r','راست']];
+
+function dupLabels(m){
+  const seen={}, dups=[];
+  const push=n=>{ n=String(n||'').trim(); if(!n) return; if(seen[n]) dups.push(n); seen[n]=1; };
+  (m.inputs||[]).forEach(x=>push(x.label));
+  (m.vars||[]).forEach(x=>push(x.label));
+  (m.pieces||[]).forEach(x=>push(x.label));
+  (m.hw||[]).forEach(x=>push(x.label));
+  return dups;
+}
+
+function buildCtx(model, freeVals){
+  const scope=Object.create(null), recipes=new Map(), busy=new Set(), errors=[];
+  (model.inputs||[]).forEach(i=>{
+    if(i.mode==='const') scope[i.label]=num(i.value);
+    else if(i.mode==='free'){
+      const rawv = (freeVals && freeVals[i.id]!==undefined && String(freeVals[i.id]).trim()!=='') ? freeVals[i.id] : i.value;
+      scope[i.label]=num(rawv);
+    }
+  });
+  (model.inputs||[]).filter(i=>i.mode==='formula').forEach(i=>recipes.set(i.label,()=>ev(i.formula,'ورودی «'+i.label+'»')));
+  (model.vars||[]).forEach(v=>recipes.set(v.label,()=>ev(v.formula,'متغیر «'+v.label+'»')));
+  (model.pieces||[]).forEach(p=>{
+    recipes.set(p.label+'.تعداد',()=>ev(p.countF,'تعداد «'+p.label+'»'));
+    recipes.set(p.label+'.طول',   ()=>ev(p.lenF,  'طول «'+p.label+'»'));
+    recipes.set(p.label+'.عرض',   ()=>ev(p.widF,  'عرض «'+p.label+'»'));
+  });
+  (model.hw||[]).forEach(h=>recipes.set(h.label+'.تعداد',()=>ev(h.formula,'یراق «'+h.label+'»')));
+
+  function resolve(name){
+    if(Object.prototype.hasOwnProperty.call(scope,name)) return scope[name];
+    if(recipes.has(name)){
+      if(busy.has(name)) throw new Error('حلقه در فرمول: «'+name+'»');
+      busy.add(name);
+      try{
+        const v=recipes.get(name)();
+        if(typeof v!=='number'||!isFinite(v)) throw new Error('مقدار نامعتبر: «'+name+'»');
+        scope[name]=v; return v;
+      } finally { busy.delete(name); }
+    }
+    throw new Error('نام ناشناخته «'+name+'»');
+  }
+  function isName(n){ return Object.prototype.hasOwnProperty.call(scope,n) || recipes.has(n); }
+  function ev(src,where){
+    if(src===undefined||src===null||String(src).trim()==='') throw new Error('فرمول خالی'+(where?' ('+where+')':''));
+    try{ return parseEval(src,resolve,isName); }
+    catch(e){ throw new Error((where?where+': ':'')+e.message); }
+  }
+  // اجرای فرمول با نام‌های محلی (مثلاً تعداد = تعداد همین قطعه)
+  function run(locals,fn){
+    const saved={};
+    Object.keys(locals).forEach(k=>{
+      saved[k]={had:Object.prototype.hasOwnProperty.call(scope,k),v:scope[k]};
+      scope[k]=locals[k];
+    });
+    try{ return fn(); }
+    finally{
+      Object.keys(saved).forEach(k=>{ if(saved[k].had) scope[k]=saved[k].v; else delete scope[k]; });
+    }
+  }
+  return {resolve,ev,run,errors};
+}
+
+function calculate(model, freeVals){
+  const st=S.settings;
+  const out={rows:[],mats:[],groove:{lines:0,m:0},pvc:{m:0},hw:[],computed:[],errors:[]};
+  const dups=dupLabels(model);
+  if(dups.length) out.errors.push('نام تکراری: '+[...new Set(dups)].join('، '));
+
+  let ctx;
+  try{ ctx=buildCtx(model,freeVals); }
+  catch(e){ out.errors.push(e.message); return out; }
+
+  // نمایش مقادیر محاسبه‌شده (ورودی‌های فرمولی + متغیرها)
+  (model.inputs||[]).filter(i=>i.mode==='formula').forEach(i=>{
+    try{ out.computed.push([i.label, ctx.resolve(i.label)]); }catch(e){ out.errors.push(e.message); }
+  });
+  (model.vars||[]).forEach(v=>{
+    try{ out.computed.push([v.label, ctx.resolve(v.label)]); }catch(e){ out.errors.push(e.message); }
+  });
+
+  const matMap={};
+  const hwMap={};
+  (model.pieces||[]).forEach(p=>{
+    const nm=String(p.label||'').trim();
+    if(!nm){ out.errors.push('قطعه‌ای بدون نام داری؛ اول اسمش رو بذار.'); return; }
+    let cnt,len,wid;
+    try{
+      cnt=ctx.resolve(nm+'.تعداد');
+      len=ctx.resolve(nm+'.طول');
+      wid=ctx.resolve(nm+'.عرض');
+    }catch(e){ out.errors.push(e.message); return; }
+    const g=p.groove||{on:false,edges:{}}, pv=p.pvc||{on:false,edges:{}};
+    const gOn=!!g.on, pOn=!!pv.on;
+    const gSides=EDGES.filter(([k])=>gOn && g.edges && g.edges[k]);
+    const pSides=EDGES.filter(([k])=>pOn && pv.edges && pv.edges[k]);
+    // شیار
+    let gLines=0,gLen=0;
+    gSides.forEach(([k])=>{
+      gLines += cnt;
+      gLen += ((k==='u'||k==='d') ? len : wid) * cnt / 1000;
+    });
+    // PVC
+    let pLen=0;
+    pSides.forEach(([k])=>{ pLen += ((k==='u'||k==='d') ? len : wid) * cnt / 1000; });
+
+    out.groove.lines += gLines;
+    out.groove.m += gLen;
+    out.pvc.m += pLen;
+
+    const material=String(p.material||'').trim()||'بدون جنس';
+    const thk=String(p.thk||'').trim();
+    const area=len*wid*cnt/1e6;
+    const key=material+'|'+thk;
+    if(!matMap[key]) matMap[key]={name:material,thk:thk,area:0};
+    matMap[key].area += area;
+
+    // یراق‌های مرتبط با همین قطعه (تعداد/طول/عرض = مقدار همین قطعه)
+    if((p.hw||[]).length){
+      ctx.run({'تعداد':cnt,'طول':len,'عرض':wid},()=>{
+        (p.hw||[]).forEach(h=>{
+          const hn=String(h.label||'').trim();
+          if(!hn){ out.errors.push('یراق بدون نام در قطعه «'+nm+'»'); return; }
+          try{ const c=ctx.ev(h.formula,'یراق «'+hn+'» قطعه «'+nm+'»'); hwMap[hn]=(hwMap[hn]||0)+c; }
+          catch(e){ out.errors.push(e.message); }
+        });
+      });
+    }
+
+    out.rows.push({
+      piece:nm, material:material, thk:thk, cnt:cnt, len:len, wid:wid,
+      gdesc: gSides.length ? (gSides.map(x=>x[1]).join('، ')+' (عمق '+nf(num(g.depth),0)+')') : '',
+      pdesc: pSides.length ? (pSides.map(x=>x[1]).join('، ')+' ('+nf(num(pv.thk),0)+' مم)') : '',
+      gEdges: Object.fromEntries(EDGES.map(([k])=>[k, gOn && !!(g.edges&&g.edges[k])])),
+      pEdges: Object.fromEntries(EDGES.map(([k])=>[k, pOn && !!(pv.edges&&pv.edges[k])])),
+      area:area
+    });
+  });
+
+  const sheetArea=(st.sheetL*st.sheetW)/1e6;
+  out.mats=Object.values(matMap).map(x=>{
+    const withWaste=x.area*(1+(st.waste||0)/100);
+    return {name:x.name,thk:x.thk,area:x.area,sheets: sheetArea>0?Math.ceil(withWaste/sheetArea):0};
+  }).sort((a,b)=>b.area-a.area);
+
+  // یراق‌های سطح مدل (مستقل از قطعه)
+  (model.hw||[]).forEach(h=>{
+    const nm=String(h.label||'').trim();
+    if(!nm){ out.errors.push('یراقی بدون نام داری.'); return; }
+    try{ const c=ctx.resolve(nm+'.تعداد'); hwMap[nm]=(hwMap[nm]||0)+c; }
+    catch(e){ out.errors.push(e.message); }
+  });
+  out.hw=Object.keys(hwMap).map(k=>({name:k,cnt:hwMap[k]}));
+  return out;
+}
+
+/* ============================= وضعیت رابط ============================= */
+let V={tab:'cats',catId:null,modelId:null,openPiece:null,projectId:null,
+  calcModelId:null,calcFree:{},calcRes:null,
+  adding:false,addCat:null,addModelId:null,addFree:{},addMore:false,addDirty:false,editItem:null,
+  expanded:null,showSummary:false,editCat:null};
+
+const navHTML=()=>{
+  const t=(id,label)=>'<button class="'+(navOn(id)?'on':'')+'" onclick="App.go(\''+id+'\')">'+label+'</button>';
+  return '<span class="sr"></span>'+t('cats','قالب‌ها')+t('calc','محاسبه')+t('projects','پروژه‌ها')+t('settings','تنظیمات');
+};
+function navOn(tab){
+  if(tab==='cats') return ['cats','models','editor'].indexOf(V.tab)>=0;
+  if(tab==='projects') return ['projects','project'].indexOf(V.tab)>=0;
+  return V.tab===tab;
+}
+function render(){
+  document.getElementById('nav').innerHTML=navHTML();
+  const a=document.getElementById('app');
+  let h='';
+  try{
+    if(V.tab==='cats') h=viewCats();
+    else if(V.tab==='models') h=viewModels();
+    else if(V.tab==='editor') h=viewEditor();
+    else if(V.tab==='calc') h=viewCalc();
+    else if(V.tab==='projects') h=viewProjects();
+    else if(V.tab==='project') h=viewProject();
+    else if(V.tab==='settings') h=viewSettings();
+  }catch(e){
+    if(window.console) console.error(e);
+    h='<div class="err">خطا در نمایش این صفحه: '+esc(e.message)+'<br><span class="hint">داده‌ها ذخیره‌شده و سالم‌ان؛ اگر دوباره تکرار شد بگو تا درستش کنم.</span></div>';
+    try{ toast('خطای نمایش: '+e.message); }catch(e2){}
+  }
+  a.innerHTML=h;
+}
+function empty(msg){ return '<div class="empty">'+esc(msg)+'</div>'; }
+function materialsList(){
+  const s=new Set();
+  S.models.forEach(m=>(m.pieces||[]).forEach(p=>{ if(String(p.material||'').trim()) s.add(String(p.material).trim()); }));
+  return [...s];
+}
+
+/* ============================= نما: دسته‌ها ============================= */
+function viewCats(){
+  let h='<div class="head"><div><h2>دسته‌ها</h2><div class="hint">دسته فقط ظرف گروه‌بندی مدل‌هاست، مثلاً «کابینت زمینی» یا «کابینت هوایی».</div></div></div>';
+  h+='<form class="inline" onsubmit="App.addCat(this.q.value);this.q.value=\'\';return false;"><input name="q" placeholder="نام دسته جدید..."><button class="btn">+ افزودن دسته</button></form>';
+  if(!S.categories.length) return h+empty('هنوز دسته‌ای نساختی. اول یه دسته اضافه کن تا بعد توش مدل بسازی.');
+  h+='<div class="grid">';
+  S.categories.forEach(c=>{
+    const n=S.models.filter(m=>m.catId===c.id).length;
+    const editing=V.editCat===c.id;
+    h+='<div class="card" onclick="App.openModels(\''+c.id+'\')" style="cursor:pointer">';
+    if(editing){
+      h+='<input style="width:100%" value="'+esc(c.name)+'" oninput="App.setCatName(\''+c.id+'\',this.value)" onkeydown="if(event.key===\'Enter\'){event.preventDefault();App.stopCatEdit();}" onclick="event.stopPropagation()">';
+    }else{
+      h+='<div class="t">'+esc(c.name)+'</div><div class="s">'+nf(n,0)+' مدل</div>';
+    }
+    h+='<div class="acts" onclick="event.stopPropagation()">'+
+       '<button class="btn2" onclick="App.editCat(\''+c.id+'\')">'+(editing?'تمام':'ویرایش')+'</button>'+
+       '<button class="btn2 red" onclick="App.delCat(\''+c.id+'\')">حذف</button></div></div>';
+  });
+  h+='</div>';
+  return h;
+}
+
+/* ============================= نما: مدل‌های یک دسته ============================= */
+function viewModels(){
+  const cat=S.categories.find(c=>c.id===V.catId);
+  if(!cat){ V.tab='cats'; return viewCats(); }
+  let h='<div class="head"><div><button class="btn2" onclick="App.go(\'cats\')">→ بازگشت</button> <h2 style="display:inline-block;margin:0 8px">'+esc(cat.name)+'</h2></div></div>';
+  // تب دسته‌ها
+  h+='<div class="tabs">';
+  S.categories.forEach(c=>h+='<button class="'+(c.id===V.catId?'on':'')+'" onclick="App.openModels(\''+c.id+'\')">'+esc(c.name)+'</button>');
+  h+='</div>';
+  h+='<form class="inline" onsubmit="App.addModel(this.q.value);this.q.value=\'\';return false;"><input name="q" placeholder="نام مدل جدید، مثلاً «تک‌در زمینی»..."><button class="btn">+ افزودن مدل</button></form>';
+  const list=S.models.filter(m=>m.catId===cat.id);
+  if(!list.length) return h+empty('این دسته هنوز مدلی نداره. یه مدل بساز تا ورودی‌ها و قطعاتش رو تعریف کنی.');
+  h+='<div class="grid">';
+  list.forEach(m=>{
+    h+='<div class="card"><div class="t">'+esc(m.name)+'</div>'+
+       '<div class="s">'+nf((m.inputs||[]).length,0)+' ورودی · '+nf((m.pieces||[]).length,0)+' قطعه</div>'+
+       '<div class="acts">'+
+       '<button class="btn" onclick="App.calcModel(\''+c0(m)+'\')">محاسبه</button>'+
+       '<button class="btn2" onclick="App.editModel(\''+m.id+'\')">ویرایش</button>'+
+       '<button class="btn2" onclick="App.copyModel(\''+m.id+'\')">کپی</button>'+
+       '<button class="btn2 red" onclick="App.delModel(\''+m.id+'\')">حذف</button>'+
+       '</div></div>';
+  });
+  h+='</div>';
+  return h;
+}
+function c0(m){ return m.id; }
+
+/* ============================= نما: ویرایشگر مدل ============================= */
+function uniqLabel(m,base){
+  const used={};
+  (m.inputs||[]).concat(m.vars||[],m.pieces||[],m.hw||[]).forEach(x=>{ used[String(x.label||'').trim()]=1; });
+  let n=base, i=1;
+  while(used[n]){ i++; n=base+' '+i; }
+  return n;
+}
+function nameTokens(m){
+  const out=[];
+  (m.inputs||[]).forEach(i=>{const n=String(i.label||'').trim(); if(n && out.indexOf(n)<0) out.push(n);});
+  (m.vars||[]).forEach(v=>{const n=String(v.label||'').trim(); if(n && out.indexOf(n)<0) out.push(n);});
+  return out;
+}
+function tokChips(m,extras){
+  let toks=(extras||[]).slice();
+  nameTokens(m).forEach(n=>{ if(toks.indexOf(n)<0) toks.push(n); });
+  if(!toks.length) return '';
+  return '<div class="toks"><span class="tklbl">کلیک = درج نام (بدون غلط تایپی):</span>'+
+    toks.map(t=>'<button type="button" class="tok" onmousedown="event.preventDefault()" onclick="App.insTok(\''+esc(t)+'\')">'+esc(t)+'</button>').join('')+
+    '</div>';
+}
+function inputRow(m,i){
+  const modes={const:'ثابت',free:'آزاد',formula:'فرمول'};
+  let field;
+  if(i.mode==='formula'){
+    field='<input class="fml" list="namelist" data-fml="1" placeholder="مثال: طول - 2 * ضخامت" value="'+esc(i.formula)+'" oninput="App.setIn(\''+i.id+'\',\'formula\',this.value)">';
+  }else{
+    field='<input class="val" inputmode="decimal" placeholder="'+(i.mode==='free'?'مقدار پیش‌فرض':'عدد')+' '+uPh()+'" value="'+esc(toU(i.value,uFi(i)))+'" oninput="App.setIn(\''+i.id+'\',\'value\',this.value)">';
+  }
+  let usel='';
+  if(i.mode!=='formula'){
+    const uopts={ '':'واحد کل', n:'بدون واحد', mm:'مم', cm:'سانتی', m:'متر' };
+    usel='<select onchange="App.setIn(\''+i.id+'\',\'u\',this.value)" title="واحد این ورودی: بدون واحد برای اعدادی مثل تعداد">'+
+      Object.keys(uopts).map(k=>'<option value="'+k+'"'+(((i.u||'')===k)?' selected':'')+'>'+uopts[k]+'</option>').join('')+'</select>';
+  }
+  return '<div class="row"><input class="lbl" placeholder="نام ورودی" value="'+esc(i.label)+'" oninput="App.setIn(\''+i.id+'\',\'label\',this.value)">'+
+    '<select onchange="App.setIn(\''+i.id+'\',\'mode\',this.value)">'+
+    Object.keys(modes).map(k=>'<option value="'+k+'"'+(i.mode===k?' selected':'')+'>'+modes[k]+'</option>').join('')+
+    '</select>'+usel+field+
+    '<button class="icon" title="حذف" onclick="App.delIn(\''+i.id+'\')">×</button></div>';
+}
+function edgeBoxes(m,p,kind){
+  const obj=kind==='groove'?p.groove:p.pvc;
+  return '<div class="chips">'+EDGES.map(([k,n])=>
+    '<label class="cb"><input type="checkbox" '+(obj.edges&&obj.edges[k]?'checked':'')+' onchange="App.setEdge(\''+p.id+'\',\''+kind+'\',\''+k+'\',this.checked)">'+n+'</label>'
+  ).join('')+'</div>';
+}
+function pieceCard(m,p){
+  const open=V.openPiece===p.id;
+  const g=p.groove||{on:false,edges:{}}, pv=p.pvc||{on:false,edges:{}};
+  let h='<div class="card">';
+  h+='<div class="phead" onclick="App.togglePiece(\''+p.id+'\')"><span class="chev">'+(open?'▾':'◂')+'</span>'+
+     '<b id="ph_'+p.id+'">'+esc(p.label||'بدون نام')+'</b>'+
+     '<span class="s">'+esc(String(p.material||'').trim()||'جنس؟')+(String(p.thk||'').trim()?' · '+esc(toU(p.thk))+' '+uName():'')+'</span>'+
+     '<span class="s" style="margin-right:auto">'+(g.on?'📏 شیار ':'')+(pv.on?'🟠 PVC ':'')+'</span></div>';
+  if(open){
+    h+='<div class="pfields">';
+    h+='<div class="row"><input class="lbl" placeholder="نام قطعه (مثلاً کف، بغل، در)" value="'+esc(p.label)+'" oninput="App.setP(\''+p.id+'\',\'label\',this.value)">'+
+       '<input placeholder="جنس (مثلاً MDF)" list="matlist" value="'+esc(p.material)+'" oninput="App.setP(\''+p.id+'\',\'material\',this.value)">'+
+       '<input class="val" inputmode="decimal" placeholder="ضخامت '+uPh()+'" value="'+esc(toU(p.thk))+'" oninput="App.setP(\''+p.id+'\',\'thk\',this.value)"></div>';
+    h+='<div class="sublbl">ابعاد و تعداد (فرمول)</div>';
+    h+='<div class="row">'+
+       '<input class="val" style="width:110px" list="namelist" data-fml="1" placeholder="تعداد" title="فرمول تعداد" value="'+esc(p.countF)+'" oninput="App.setP(\''+p.id+'\',\'countF\',this.value)">'+
+       '<input class="fml" list="namelist" data-fml="1" placeholder="فرمول طول (مثال: ارتفاع)" value="'+esc(p.lenF)+'" oninput="App.setP(\''+p.id+'\',\'lenF\',this.value)">'+
+       '<input class="fml" list="namelist" data-fml="1" placeholder="فرمول عرض (مثال: ضخامت)" value="'+esc(p.widF)+'" oninput="App.setP(\''+p.id+'\',\'widF\',this.value)"></div>';
+    h+=tokChips(m, (p.hw||[]).length?['تعداد']:[]);
+    h+='<div class="sublbl">شیار</div>';
+    h+='<div class="row"><label class="cb"><input type="checkbox" '+(g.on?'checked':'')+' onchange="App.setGroove(\''+p.id+'\',\'on\',this.checked)"> دارد</label>'+
+       '<input class="val" inputmode="decimal" placeholder="عمق شیار '+uPh()+'" value="'+esc(toU(g.depth))+'" oninput="App.setG(\''+p.id+'\',\'depth\',this.value)"></div>';
+    if(g.on) h+='<div class="sublbl">لبه‌های شیاردار</div>'+edgeBoxes(m,p,'groove');
+    h+='<div class="sublbl">PVC (لبه‌چسب)</div>';
+    h+='<div class="row"><label class="cb"><input type="checkbox" '+(pv.on?'checked':'')+' onchange="App.setPvc(\''+p.id+'\',\'on\',this.checked)"> دارد</label>'+
+       '<input class="val" inputmode="decimal" placeholder="ضخامت PVC '+uPh()+'" value="'+esc(toU(pv.thk))+'" oninput="App.setP(\''+p.id+'\',\'_pvthk\',this.value)"></div>';
+    if(pv.on) h+='<div class="sublbl">لبه‌های PVC‌خورده</div>'+edgeBoxes(m,p,'pvc');
+    h+='<div class="sublbl">یراق این قطعه</div>';
+    h+='<div class="hint" style="margin-top:0">«تعداد» در این فرمول‌ها یعنی تعداد همین قطعه. مثلاً برای در: دستگیره = <code style="direction:ltr;display:inline-block">تعداد</code> و لولا = <code style="direction:ltr;display:inline-block">تعداد * 2</code>؛ برای کشو: ریل = <code style="direction:ltr;display:inline-block">تعداد * 2</code>.</div>';
+    (p.hw||[]).forEach(x=>{
+      h+='<div class="row"><input class="lbl" placeholder="نام یراق (مثلاً لولا)" value="'+esc(x.label)+'" oninput="App.setPHw(\''+p.id+'\',\''+x.id+'\',\'label\',this.value)">'+
+         '<input class="fml" list="namelist" data-fml="1" placeholder="فرمول تعداد (مثال: تعداد * 2)" value="'+esc(x.formula)+'" oninput="App.setPHw(\''+p.id+'\',\''+x.id+'\',\'formula\',this.value)">'+
+         '<button class="icon" onclick="App.delPHw(\''+p.id+'\',\''+x.id+'\')">×</button></div>';
+    });
+    h+='<div class="row"><button class="btn2" onclick="App.addPHw(\''+p.id+'\')">+ افزودن یراق این قطعه</button></div>';
+    h+='<div class="row" style="margin-top:12px"><button class="btn2" onclick="App.copyPiece(\''+p.id+'\')" title="کپی با همه‌ی جنس، ابعاد و یراق‌ها">⧉ کپی این قطعه</button>'+
+       '<button class="btn2" onclick="App.addPieceToHw(\''+p.id+'\')" title="یراق سطح مدل بساز که به تعداد این قطعه حساب بشه">⇪ افزودن به یراق</button>'+
+       '<button class="btn2 red" onclick="App.delPiece(\''+p.id+'\')">حذف این قطعه</button></div>';
+    h+='</div>';
+  }
+  h+='</div>';
+  return h;
+}
+function helpBox(m){
+  const names=[]
+    .concat((m.inputs||[]).map(x=>x.label))
+    .concat((m.vars||[]).map(x=>x.label))
+    .concat((m.pieces||[]).flatMap(p=>[p.label+'.تعداد',p.label+'.طول',p.label+'.عرض']))
+    .concat((m.hw||[]).map(x=>x.label+'.تعداد'))
+    .filter(x=>String(x||'').trim());
+  return '<div class="help"><b>نام‌های قابل استفاده در فرمول:</b> '+
+    (names.length?names.map(n=>'<code>'+esc(n)+'</code>').join(' '):'<span class="emptymini">هنوز چیزی تعریف نشده</span>')+
+    '<br>داخل بخش «یراق این قطعه» نام‌های <code>تعداد</code> و <code>طول</code> و <code>عرض</code> مقدار همان قطعه رو می‌دن.'+
+    '<br>توابع: <code>floor</code> <code>ceil</code> <code>round</code> <code>min</code> <code>max</code> <code>abs</code> — عملگرها: <code>+</code> <code>-</code> <code>*</code> <code>/</code> <code>( )</code>'+
+    '<br>مثال: <code>طول - 2 * ضخامت</code> &nbsp; یا &nbsp; <code>کف.عرض / در.تعداد</code></div>';
+}
+function viewEditor(){
+  const m=S.models.find(x=>x.id===V.modelId);
+  if(!m){ V.tab='models'; return viewModels(); }
+  const cat=S.categories.find(c=>c.id===m.catId);
+  let h='<datalist id="matlist">'+materialsList().map(x=>'<option value="'+esc(x)+'">').join('')+'</datalist>';
+  h+='<datalist id="namelist">'+nameTokens(m).map(x=>'<option value="'+esc(x)+'">').join('')+'</datalist>';
+  h+='<div class="head"><div><button class="btn2" onclick="App.go(\'models\')">→ بازگشت</button> '+
+     '<h2 style="display:inline-block;margin:0 8px">ویرایش مدل</h2>'+
+     '<div class="hint">'+esc(cat?cat.name:'')+'</div></div>'+
+     '<button class="btn2" onclick="App.checkFormulas()">✔ بررسی فرمول‌ها</button>'+
+     '<button class="btn" onclick="App.saveModel()">✔ ذخیره و بازگشت</button></div>';
+  h+='<div class="card"><input style="width:100%;font-size:17px;font-weight:700" value="'+esc(m.name)+'" placeholder="نام مدل" oninput="App.setM(\'name\',this.value)"></div>';
+  if(V.formCheck){
+    if(V.formCheck.ok) h+='<div class="card" style="border-color:#16a34a"><b style="color:#16a34a">✔ همه فرمول‌ها با مقادیر پیش‌فرض سالم‌اند</b></div>';
+    else h+='<div class="card" style="border-color:#dc2626"><b style="color:#dc2626">✗ '+V.formCheck.list.length+' فرمول خطا دارد:</b>'+
+      '<ul style="margin:6px 18px 0;padding:0">'+V.formCheck.list.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>';
+  }
+
+  // ورودی‌ها
+  h+='<div class="card sec"><h3>۱) ورودی‌ها</h3>'+
+     '<div class="hint">هر عدد یکی از سه حالت داره: <b>ثابت</b> (همیشه یک عدد، کاربر نمی‌بینتش)، <b>آزاد</b> (کاربر موقع استفاده وارد می‌کنه)، <b>فرمول</b> (از بقیه حساب می‌شه). اعداد با <b>'+uName()+'</b> وارد می‌شن (قابل تغییر از تنظیمات)؛ فرمول‌ها و خروجی‌ها همیشه میلی‌متر حساب می‌شن. برای ورودی‌های تعدادی (مثل «تعداد در») واحد «بدون واحد» بذار تا با تغییر واحد ضرب نشه.</div>';
+  (m.inputs||[]).forEach(i=>h+=inputRow(m,i));
+  if(!(m.inputs||[]).length) h+='<div class="emptymini">هنوز ورودی‌ای نداری.</div>';
+  h+=tokChips(m);
+  h+='<div class="row"><button class="btn2" onclick="App.addIn()">+ افزودن ورودی</button></div></div>';
+
+  // متغیرهای واسط
+  h+='<div class="card sec"><h3>۲) متغیرهای واسط (اختیاری)</h3>'+
+     '<div class="hint">یه بار نام‌دارش کن، همه جا استفاده کن. مثال: <code style="direction:ltr;display:inline-block">W_inner = طول - 2 * ضخامت</code></div>';
+  (m.vars||[]).forEach(v=>{
+    h+='<div class="row"><input class="lbl" placeholder="نام متغیر" value="'+esc(v.label)+'" oninput="App.setVar(\''+v.id+'\',\'label\',this.value)">'+
+       '<input class="fml" list="namelist" data-fml="1" placeholder="فرمول" value="'+esc(v.formula)+'" oninput="App.setVar(\''+v.id+'\',\'formula\',this.value)">'+
+       '<button class="icon" onclick="App.delVar(\''+v.id+'\')">×</button></div>';
+  });
+  h+=tokChips(m);
+  h+='<div class="row"><button class="btn2" onclick="App.addVar()">+ افزودن متغیر</button></div></div>';
+
+  // قطعات
+  h+='<div class="card sec"><h3>۳) قطعات خروجی</h3>'+
+     '<div class="hint">هر قطعه جنس و ضخامت خودش رو داره، فرمول ابعادش می‌تونه به ورودی‌ها یا قطعه دیگه اشاره کنه، و شیار/PVC هم به‌ازای لبه‌های دلخواه.</div>';
+  (m.pieces||[]).forEach(p=>h+=pieceCard(m,p));
+  if(!(m.pieces||[]).length) h+='<div class="emptymini">هنوز قطعه‌ای نداری. مثلاً کف، بغل چپ، بغل راست، در...</div>';
+  h+='<div class="row"><button class="btn2" onclick="App.addPiece()">+ افزودن قطعه</button></div>';
+  h+=helpBox(m)+'</div>';
+
+  // یراق
+  h+='<div class="card sec"><h3>۴) یراق‌های سطح مدل</h3>'+
+     '<div class="hint">یراقی که به یک قطعه خاص وصل نیست اینجا تعریف می‌شه (مثلاً پایه). اگه یراق از «خودِ قطعه» میاد — مثل لولا و دستگیره در، ریل کشو — داخل همان قطعه، بخش «یراق این قطعه» تعریفش کن تا تعدادش خودکار از تعداد آن قطعه بیاد. اینجا هم می‌شه به قطعه اشاره کرد: <code style="direction:ltr;display:inline-block">در.تعداد * 2</code></div>';
+  (m.hw||[]).forEach(x=>{
+    h+='<div class="row"><input class="lbl" placeholder="نام یراق (لولا، دستگیره، ریل)" value="'+esc(x.label)+'" oninput="App.setHw(\''+x.id+'\',\'label\',this.value)">'+
+       '<input class="fml" list="namelist" data-fml="1" placeholder="فرمول تعداد" value="'+esc(x.formula)+'" oninput="App.setHw(\''+x.id+'\',\'formula\',this.value)">'+
+       '<button class="icon" onclick="App.delHw(\''+x.id+'\')">×</button></div>';
+  });
+  h+=tokChips(m, (m.pieces||[]).map(x=>x.label).filter(x=>x && x.indexOf('.')<0).map(x=>x+'.تعداد'));
+  h+='<div class="row"><button class="btn2" onclick="App.addHw()">+ افزودن یراق</button></div></div>';
+
+  h+='<div class="row"><button class="btn" onclick="App.saveModel()">✔ ذخیره و بازگشت</button></div>';
+  return h;
+}
+
+/* ============================= نما: محاسبه تک‌کابینت ============================= */
+function viewCalc(){
+  if(!V.calcModelId){
+    let h='<div class="head"><div><h2>محاسبه تک‌کابینت</h2><div class="hint">مدل رو انتخاب کن، فقط بُعد آزاد رو وارد کن، خروجی فوری بگیر.</div></div></div>';
+    if(!S.categories.length) return h+empty('اول بریم سراغ «قالب‌ها» و یک دسته و مدل بسازیم.');
+    const cats=S.categories;
+    const cur=V.pickCat && cats.some(c=>c.id===V.pickCat) ? V.pickCat : (cats[0]?cats[0].id:null);
+    V.pickCat=cur;
+    h+='<div class="tabs">'+cats.map(c=>'<button class="'+(c.id===cur?'on':'')+'" onclick="App.pickCat(\''+c.id+'\')">'+esc(c.name)+'</button>').join('')+'</div>';
+    const list=S.models.filter(m=>m.catId===cur);
+    if(!list.length) return h+empty('این دسته هنوز مدلی نداره.');
+    h+='<div class="grid">'+list.map(m=>
+      '<div class="card"><div class="t">'+esc(m.name)+'</div>'+
+      '<div class="s">'+nf((m.inputs||[]).filter(i=>i.mode==='free').length,0)+' ورودی آزاد</div>'+
+      '<div class="acts"><button class="btn" onclick="App.calcPick(\''+m.id+'\')">انتخاب</button></div></div>').join('')+'</div>';
+    return h;
+  }
+  const m=S.models.find(x=>x.id===V.calcModelId);
+  if(!m){ V.calcModelId=null; return viewCalc(); }
+  const frees=(m.inputs||[]).filter(i=>i.mode==='free');
+  const consts=(m.inputs||[]).filter(i=>i.mode==='const');
+  let h='<div class="head"><div><button class="btn2" onclick="App.calcBack()">→ مدل دیگر</button> '+
+     '<h2 style="display:inline-block;margin:0 8px">'+esc(m.name)+'</h2></div>'+
+     '<button class="btn" onclick="App.runCalc()">🧮 محاسبه</button></div>';
+  if(frees.length){
+    h+='<div class="card"><h4>ابعاد سفارش</h4>';
+    frees.forEach(i=>{
+      const cur=(V.calcFree[i.id]!==undefined && String(V.calcFree[i.id]).trim()!=='') ? V.calcFree[i.id] : toU(i.value,uFi(i));
+      h+='<div class="row"><label class="lbl">'+esc(i.label||'ورودی')+'</label>'+
+         '<input class="val" inputmode="decimal" value="'+esc(cur)+'" oninput="App.setFree(\''+i.id+'\',this.value)"></div>';
+    });
+    h+='</div>';
+  }
+  if(consts.length){
+    h+='<div class="card"><h4>ثابت‌های این مدل</h4><div class="chips">'+
+      consts.map(i=>'<span class="chip">'+esc(i.label)+' = <b>'+ufn(i.value,i)+'</b> '+uName()+'</span>').join('')+'</div></div>';
+  }
+  if(!frees.length && !consts.length){
+    h+='<div class="card">'+empty('این مدل هنوز ورودی‌ای نداره. از «قالب‌ها» واردش کن و ورودی تعریف کن.')+'</div>';
+  }
+  if(V.calcRes) h+=resultHTML(V.calcRes,m.name);
+  return h;
+}
+function pvHTML(g,p){
+  let h='<div class="pv">';
+  EDGES.forEach(([k])=>{
+    if(p[k]) h+='<span class="e pvc '+k+'"></span>';
+    if(g[k]) h+='<span class="e grv '+k+'"></span>';
+  });
+  h+='<span class="core"></span></div>';
+  return h;
+}
+function consumptionCards(g,p,hw){
+  let h='<div class="sumcards">';
+  h+='<div class="sumcard"><div class="k">خطوط شیار</div><div class="v">'+nf(g.lines,0)+'</div></div>';
+  h+='<div class="sumcard"><div class="k">متر طول شیار</div><div class="v">'+nf(g.m)+' متر</div></div>';
+  h+='<div class="sumcard"><div class="k">متر طول PVC</div><div class="v">'+nf(p.m)+' متر</div></div>';
+  hw.forEach(x=>h+='<div class="sumcard"><div class="k">'+esc(x.name)+'</div><div class="v">'+nf(x.cnt,0)+'</div></div>');
+  h+='</div>';
+  return h;
+}
+function resultHTML(res,title){
+  let h='';
+  if(res.errors && res.errors.length) h+='<div class="err">'+res.errors.map(e=>'• '+esc(e)).join('<br>')+'</div>';
+  if(res.computed && res.computed.length){
+    h+='<div class="card"><h4>مقادیر محاسبه‌شده</h4><div class="chips">'+
+      res.computed.map(c=>'<span class="chip">'+esc(c[0])+' = <b>'+nf(c[1])+'</b></span>').join('')+'</div></div>';
+  }
+  h+='<div class="card"><h4>لیست برش</h4>';
+  if(res.rows.length){
+    h+='<div class="tw"><table><tr><th>پیش‌نمایش</th><th>نام قطعه</th><th>جنس</th><th>ضخامت</th><th>تعداد</th><th>طول</th><th>عرض</th><th>شیار</th><th>PVC</th></tr>';
+    res.rows.forEach(r=>{
+      h+='<tr><td style="text-align:center">'+pvHTML(r.gEdges,r.pEdges)+'</td>'+
+        '<td class="wrap"><b>'+esc(r.piece)+'</b></td><td class="wrap">'+esc(r.material)+'</td><td>'+esc(r.thk||'—')+'</td>'+
+        '<td>'+nf(r.cnt,0)+'</td><td>'+nf(r.len,0)+'</td><td>'+nf(r.wid,0)+'</td>'+
+        '<td class="wrap">'+esc(r.gdesc||'—')+'</td><td class="wrap">'+esc(r.pdesc||'—')+'</td></tr>';
+    });
+    h+='</table></div>';
+    h+='<div class="legend" style="margin-top:8px"><span><i style="background:#2563eb"></i>شیار</span><span><i style="background:#f59e0b"></i>PVC</span></div>';
+  }else h+='<div class="emptymini">قطعه‌ای محاسبه نشد.</div>';
+  h+='</div>';
+
+  h+='<div class="card"><h4>جمع‌بندی متریال</h4>';
+  if(res.mats.length){
+    h+='<div class="tw"><table><tr><th>جنس</th><th>ضخامت</th><th>مترمربع</th><th>تعداد ورق (با پرت '+nf(S.settings.waste,0)+'٪)</th></tr>';
+    res.mats.forEach(x=>h+='<tr><td class="wrap">'+esc(x.name)+'</td><td>'+esc(x.thk||'—')+'</td><td>'+nf(x.area)+'</td><td><b>'+nf(x.sheets,0)+'</b></td></tr>');
+    const _ta=res.mats.reduce((s,x)=>s+x.area,0), _ts=res.mats.reduce((s,x)=>s+x.sheets,0);
+    h+='<tr><td class="wrap"><b>جمع کل</b></td><td></td><td><b>'+nf(_ta)+'</b></td><td><b>'+nf(_ts,0)+'</b></td></tr>';
+    h+='</table></div>';
+    h+='<div class="hint">ابعاد ورق: '+ufn(S.settings.sheetL)+' × '+ufn(S.settings.sheetW)+' '+uName()+' (از تنظیمات قابل تغییر)</div>';
+  }else h+='<div class="emptymini">متریالی ثبت نشد.</div>';
+  h+='</div>';
+
+  h+='<div class="card"><h4>جمع‌بندی شیار، PVC و یراق</h4>'+consumptionCards(res.groove,res.pvc,res.hw)+'</div>';
+
+  h+='<div class="row"><button class="btn g" onclick="App.print(\'single\')">🖨 چاپ / PDF</button>'+
+     '<button class="btn2" onclick="App.expXLS(\'single\')">⬇ خروجی Excel</button>'+
+     '<button class="btn2" onclick="App.expCSV(\'single\')">⬇ خروجی CSV</button></div>';
+  if(title) h+='<div class="hint">'+esc(title)+' — '+esc(nowStr())+'</div>';
+  return h;
+}
+
+/* ============================= نما: پروژه‌ها ============================= */
+function freeSummary(m,values){
+  const parts=(m.inputs||[]).filter(i=>i.mode==='free').map(i=>{
+    const v=(values && values[i.id]!==undefined && String(values[i.id]).trim()!=='') ? values[i.id] : i.value;
+    return (i.label||'ورودی')+' '+ufn(v,i);
+  });
+  return parts.join('، ');
+}
+function viewProjects(){
+  let h='<div class="head"><div><h2>پروژه‌ها</h2><div class="hint">هر پروژه یه سفارشه: کابینت‌ها رو یکی‌یکی اضافه کن، تهش جمع کل رو بگیر.</div></div></div>';
+  h+='<form class="inline" onsubmit="App.addProject(this.q.value);this.q.value=\'\';return false;"><input name="q" placeholder="نام پروژه، مثلاً «آشپزخانه آقای رضایی»..."><button class="btn">+ ساخت پروژه</button></form>';
+  if(!S.projects.length) return h+empty('هنوز پروژه‌ای نداری. یکی بساز.');
+  h+='<div class="grid">';
+  S.projects.forEach(p=>{
+    h+='<div class="card" style="cursor:pointer" onclick="App.openProject(\''+p.id+'\')"><div class="t">'+esc(p.name)+'</div>'+
+       '<div class="s">'+nf(p.items.length,0)+' کابینت</div>'+
+       '<div class="acts" onclick="event.stopPropagation()"><button class="btn2" onclick="App.openProject(\''+p.id+'\')">باز کن</button>'+
+       '<button class="btn2 red" onclick="App.delProject(\''+p.id+'\')">حذف</button></div></div>';
+  });
+  h+='</div>';
+  return h;
+}
+function addPanelHTML(pr){
+  let h='';
+  const cats=S.categories;
+  if(!cats.length) return '<div class="card">'+empty('اول از «قالب‌ها» یک دسته و مدل بساز.')+'</div>';
+  const curCat=V.addCat && cats.some(c=>c.id===V.addCat) ? V.addCat : (cats[0]?cats[0].id:null);
+  const models=S.models.filter(m=>m.catId===curCat);
+  h+='<div id="addPanel" class="card" style="border-color:#2563eb"><h4>'+(V.editItem?'✏ ویرایش کابینت':'+ افزودن کابینت')+'</h4>';
+  h+='<div class="row"><label class="lbl">دسته</label><select onchange="App.setAddCat(this.value)">'+
+     cats.map(c=>'<option value="'+c.id+'"'+(c.id===curCat?' selected':'')+'>'+esc(c.name)+'</option>').join('')+'</select></div>';
+  const curM=V.addModelId && models.some(m=>m.id===V.addModelId) ? V.addModelId : null;
+  h+='<div class="row"><label class="lbl">مدل</label><select onchange="App.setAddModel(this.value)">'+
+     '<option value="">— انتخاب کن —</option>'+
+     models.map(m=>'<option value="'+m.id+'"'+(m.id===curM?' selected':'')+'>'+esc(m.name)+'</option>').join('')+'</select></div>';
+  if(curM){
+    const m=models.find(x=>x.id===curM);
+    const frees=(m.inputs||[]).filter(i=>i.mode==='free');
+    if(frees.length){
+      const inpRow=(i,primary)=>{
+        const cur=(V.addFree[i.id]!==undefined && String(V.addFree[i.id]).trim()!=='') ? V.addFree[i.id] : toU(i.value,uFi(i));
+        return '<div class="row"><label class="lbl">'+esc(i.label||'ورودی')+'</label>'
+          +'<input class="val" inputmode="decimal" value="'+esc(cur)+'" oninput="App.setAddFree(\''+i.id+'\',this.value)"'
+          +(primary?' id="addPrimary" onkeydown="if(event.key===\'Enter\'){event.preventDefault();App.commitAdd('+(V.editItem?'false':'true')+');}"':'')+'>'
+          +'</div>';
+      };
+      if(V.editItem) h+='<div class="sublbl">ابعاد این کابینت</div>';
+      h+=inpRow(frees[0],true);
+      const others=frees.slice(1);
+      if(others.length){
+        if(V.editItem || V.addMore){
+          h+='<div class="sublbl">سایر ابعاد</div>';
+          others.forEach(i=>h+=inpRow(i,false));
+          if(!V.editItem) h+='<div class="row"><button class="btn2" onclick="App.toggleAddMore()">بستن سایر ابعاد</button></div>';
+        }else{
+          h+='<div class="hint">بقیه با پیش‌فرض: '+others.map(i=>esc(i.label)+' '+esc(toU(i.value,uFi(i)))).join('، ')
+            +' <button class="btn2" style="padding:3px 10px;margin:0 6px" onclick="App.toggleAddMore()">ویرایش</button></div>';
         }
       }
-    </script>
-  </body>
+    }else h+='<div class="hint">این مدل ورودی آزادی نداره؛ همون‌طور اضافه می‌شه.</div>';
+  }
+  h+='<div class="row" style="margin-top:10px">'
+    +(V.editItem
+      ? '<button class="btn" '+(curM?'':'disabled')+' onclick="App.commitAdd(false)">به‌روزرسانی</button>'
+      : '<button class="btn" '+(curM?'':'disabled')+' onclick="App.commitAdd(true)">+ افزودن و بعدی</button>'
+        +'<button class="btn2" '+(curM?'':'disabled')+' onclick="App.commitAdd(false)">ذخیره و بستن</button>')
+    +'<button class="btn2" onclick="App.cancelAdd()">انصراف</button></div></div>';
+  return h;
+}
+function focusAddInput(){ setTimeout(()=>{ const el=document.querySelector('#addPanel input.val'); if(el){ el.focus(); el.select(); } },30); }
+function numv(v){ const s=String(v==null?'':v).trim(); if(s==='') return 0; const n=parseFloat(numify(s)); return isNaN(n)?0:n; }
+function invoiceData(pr){
+  const agg=aggregate(pr);
+  const inv=pr.inv||{mats:{},hw:{},groove:'',pvc:''};
+  let matT=0, hwT=0;
+  const mats=agg.mats.map(x=>{
+    const key=x.name+'|'+x.thk;
+    const pv=(inv.mats&&inv.mats[key])||{};
+    const line=x.sheets*numv(pv.sheet)+x.area*numv(pv.area);
+    matT+=line;
+    return {key:key,name:x.name,thk:x.thk,area:x.area,sheets:x.sheets,
+      sp:pv.sheet==null?'':String(pv.sheet),ap:pv.area==null?'':String(pv.area),line:line};
+  });
+  const hw=agg.hw.map(x=>{
+    const p=(inv.hw&&inv.hw[x.name]!=null)?inv.hw[x.name]:'';
+    const line=x.cnt*numv(p); hwT+=line;
+    return {name:x.name,cnt:x.cnt,price:String(p==null?'':p),line:line};
+  });
+  const gro={m:agg.groove.m,price:String(inv.groove==null?'':inv.groove),line:agg.groove.m*numv(inv.groove)};
+  const pvc={m:agg.pvc.m,price:String(inv.pvc==null?'':inv.pvc),line:agg.pvc.m*numv(inv.pvc)};
+  const svcT=gro.line+pvc.line;
+  return {agg:agg,mats:mats,hw:hw,gro:gro,pvc:pvc,matT:matT,hwT:hwT,svcT:svcT,
+    total:matT+hwT+svcT,errors:agg.errors};
+}
+function sectionsInvoice(pr,fmt){
+  fmt=fmt||raw;
+  const d=invoiceData(pr);
+  const s=[];
+  s.push({t:'مواد اولیه (ورق‌ها)',h:['جنس','ضخامت','مترمربع','تعداد ورق','قیمت هر ورق','قیمت هر مترمربع','جمع'],
+    r:d.mats.map(x=>[x.name,x.thk||'',fmt(x.area),fmt(x.sheets),x.sp||'',x.ap||'',fmt(x.line)])});
+  s.push({t:'یراق‌آلات',h:['نام','تعداد','قیمت هر عدد','جمع'],
+    r:d.hw.map(x=>[x.name,fmt(x.cnt),x.price||'',fmt(x.line)])});
+  s.push({t:'شیار و PVC',h:['مورد','مقدار','واحد','قیمت واحد','جمع'],
+    r:[['شیار',fmt(d.gro.m),'متر',d.gro.price||'',fmt(d.gro.line)],['PVC',fmt(d.pvc.m),'متر',d.pvc.price||'',fmt(d.pvc.line)]]});
+  s.push({t:'جمع کل فاکتور (تومان)',h:['مبلغ نهایی'],r:[[fmt(d.total)]]});
+  if(d.errors.length) s.push({t:'خطاها',h:['پیام'],r:d.errors.map(e=>[e])});
+  return s;
+}
+function viewInvoice(pr){
+  const d=invoiceData(pr);
+  const money=n=>nf(n,0)+' تومان';
+  let h='<div class="card sec" id="invCard"><h3>🧾 فاکتور پروژه «'+esc(pr.name)+'»</h3>';
+  h+='<div class="hint">قیمت‌ها رو وارد کن (تومان)؛ خودکار ذخیره می‌شن و جمع کل همین‌جا بروز می‌شه. ردیفی که قیمت نذاری صفر حساب می‌شه.</div>';
+  if(d.errors.length) h+='<div class="err">'+d.errors.map(e=>'• '+esc(e)).join('<br>')+'</div>';
+  if(d.mats.length){
+    h+='<h4>مواد اولیه (ورق‌ها)</h4><div class="tw"><table><tr><th>جنس</th><th>ضخامت</th><th>مترمربع</th><th>تعداد ورق</th><th>قیمت هر ورق</th><th>قیمت هر مترمربع</th><th>جمع</th></tr>';
+    d.mats.forEach(x=>{
+      h+='<tr><td>'+esc(x.name)+'</td><td>'+esc(x.thk||'')+'</td><td>'+nf(x.area,2)+'</td><td>'+nf(x.sheets,0)+'</td>'+
+         '<td><input class="val" inputmode="decimal" style="width:105px" value="'+esc(x.sp)+'" onchange="App.setInv(\'mats\',\''+esc(x.key)+'\',\'sheet\',this.value)"></td>'+
+         '<td><input class="val" inputmode="decimal" style="width:105px" value="'+esc(x.ap)+'" onchange="App.setInv(\'mats\',\''+esc(x.key)+'\',\'area\',this.value)"></td>'+
+         '<td>'+nf(x.line,0)+'</td></tr>';
+    });
+    h+='<tr><td colspan="6"><b>جمع مواد اولیه</b></td><td><b>'+nf(d.matT,0)+'</b></td></tr></table></div>';
+  }
+  if(d.hw.length){
+    h+='<h4>یراق‌آلات</h4><div class="tw"><table><tr><th>نام</th><th>تعداد</th><th>قیمت هر عدد</th><th>جمع</th></tr>';
+    d.hw.forEach(x=>{
+      h+='<tr><td>'+esc(x.name)+'</td><td>'+nf(x.cnt,0)+'</td>'+
+         '<td><input class="val" inputmode="decimal" style="width:120px" value="'+esc(x.price)+'" onchange="App.setInv(\'hw\',\''+esc(x.name)+'\',\'\',this.value)"></td>'+
+         '<td>'+nf(x.line,0)+'</td></tr>';
+    });
+    h+='<tr><td colspan="3"><b>جمع یراق‌آلات</b></td><td><b>'+nf(d.hwT,0)+'</b></td></tr></table></div>';
+  }
+  h+='<h4>شیار و PVC</h4><div class="tw"><table><tr><th>مورد</th><th>مقدار</th><th>واحد</th><th>قیمت هر واحد</th><th>جمع</th></tr>'+
+     '<tr><td>شیار</td><td>'+nf(d.gro.m,2)+'</td><td>متر</td><td><input class="val" inputmode="decimal" style="width:120px" value="'+esc(d.gro.price)+'" onchange="App.setInv(\'groove\',\'\',\'\',this.value)"></td><td>'+nf(d.gro.line,0)+'</td></tr>'+
+     '<tr><td>PVC</td><td>'+nf(d.pvc.m,2)+'</td><td>متر</td><td><input class="val" inputmode="decimal" style="width:120px" value="'+esc(d.pvc.price)+'" onchange="App.setInv(\'pvc\',\'\',\'\',this.value)"></td><td>'+nf(d.pvc.line,0)+'</td></tr>'+
+     '<tr><td colspan="4"><b>جمع خدمات</b></td><td><b>'+nf(d.svcT,0)+'</b></td></tr></table></div>';
+  h+='<div class="tw" style="margin-top:12px"><table><tr><th style="background:#e8f7ee">🧾 جمع کل فاکتور</th><th style="background:#e8f7ee" id="invTotal">'+money(d.total)+'</th></tr></table></div>';
+  h+='<div class="row" style="margin-top:10px"><button class="btn g" onclick="App.print(\'inv\')">🖨 چاپ فاکتور / PDF</button>'+
+     '<button class="btn2" onclick="App.expXLS(\'inv\')">⬇ Excel فاکتور</button>'+
+     '<button class="btn2" onclick="App.expCSV(\'inv\')">⬇ CSV فاکتور</button></div></div>';
+  return h;
+}
+function viewProject(){
+  const pr=S.projects.find(p=>p.id===V.projectId);
+  if(!pr){ V.tab='projects'; return viewProjects(); }
+  let h='<div class="head"><div><button class="btn2" onclick="App.go(\'projects\')">→ بازگشت</button> '+
+    '<input style="font-size:17px;font-weight:700;margin:0 8px;min-width:200px" value="'+esc(pr.name)+'" oninput="App.setPrjName(this.value)">'+
+    '<div class="hint">'+nf(pr.items.length,0)+' کابینت</div></div>'+
+    '<div class="chips"><button class="btn" onclick="App.startAdd()">+ افزودن کابینت</button>'+
+    '<button class="btn g" onclick="App.toggleSummary()">📊 جمع‌بندی نهایی</button>'+
+    '<button class="btn g" onclick="App.toggleInvoice()">🧾 فاکتور</button></div></div>';
+  if(V.adding) h+=addPanelHTML(pr);
+  if(!pr.items.length && !V.adding) h+=empty('پروژه خالیه. کابینت اضافه کن: مدل رو انتخاب می‌کنی، فقط طول رو وارد می‌کنی.');
+  pr.items.forEach((it,idx)=>{
+    const m=S.models.find(x=>x.id===it.modelId);
+    const nm=m?m.name:'مدل حذف‌شده';
+    const vs=m?freeSummary(m,it.values):'';
+    const open=V.expanded===it.id;
+    h+='<div class="prow"><div class="no">'+nf(idx+1,0)+'</div><div class="nm">'+esc(nm)+'</div>'+
+       '<div class="vl">'+esc(vs)+'</div><div class="acts">'+
+       '<button class="btn2" onclick="App.toggleRow(\''+it.id+'\')">'+(open?'بستن':'باز کن')+'</button>'+
+       '<button class="btn2" onclick="App.editItemFn(\''+it.id+'\')">ویرایش</button>'+
+       '<button class="btn2 red" onclick="App.delItem(\''+it.id+'\')">×</button></div></div>';
+    if(open && m){
+      try{ h+='<div style="margin-bottom:14px">'+resultHTML(calculate(m,it.values),'')+'</div>'; }
+      catch(e){ h+='<div class="err">'+esc(e.message)+'</div>'; }
+    }
+  });
+  if(V.showInvoice){
+    h+=viewInvoice(pr);
+  }
+  if(V.showSummary){
+    const agg=aggregate(pr);
+    const secs=sectionsAggregate(agg, nf);
+    h+='<div class="card sec"><h3>📊 جمع‌بندی نهایی پروژه «'+esc(pr.name)+'»</h3>';
+    if(agg.errors.length) h+='<div class="err">'+agg.errors.map(e=>'• '+esc(e)).join('<br>')+'</div>';
+    h+=sectionsTableHTML(secs);
+    h+='<div class="row" style="margin-top:10px"><button class="btn g" onclick="App.print(\'proj\')">🖨 چاپ / PDF</button>'+
+       '<button class="btn2" onclick="App.expXLS(\'proj\')">⬇ خروجی Excel</button>'+
+       '<button class="btn2" onclick="App.expCSV(\'proj\')">⬇ خروجی CSV</button></div></div>';
+  }
+  return h;
+}
+function viewSettings(){
+  const st=S.settings;
+  let h='<div class="head"><div><h2>تنظیمات</h2><div class="hint">مبنای محاسبه تعداد ورق و پرت.</div></div></div>';
+  h+='<div class="card"><div class="row"><label class="lbl">واحد ورودی‌ها</label><select onchange="App.setUnit(this.value)">'+
+     ['mm','cm','m'].map(u=>'<option value="'+u+'"'+(((st.unit||'mm')===u)?' selected':'')+'>'+({mm:'میلی‌متر (مم)',cm:'سانتی‌متر (سانتی)',m:'متر'})[u]+'</option>').join('')+'</select></div>';
+  h+='<div class="row"><label class="lbl">طول ورق ('+uPh()+')</label><input class="val" inputmode="decimal" value="'+esc(toU(st.sheetL))+'" oninput="App.setSt(\'sheetL\',this.value)"></div>'+
+     '<div class="row"><label class="lbl">عرض ورق ('+uPh()+')</label><input class="val" inputmode="decimal" value="'+esc(toU(st.sheetW))+'" oninput="App.setSt(\'sheetW\',this.value)"></div>'+
+     '<div class="row"><label class="lbl">درصد پرت</label><input class="val" inputmode="decimal" value="'+esc(st.waste)+'" oninput="App.setSt(\'waste\',this.value)"></div>'+
+     '<div class="hint">تعداد ورق = ⌈مترمربع × (۱ + پرت٪) ÷ مساحت ورق⌉<br>واحد ورودی‌ها روی همه‌ی اعدادی که وارد می‌کنی اثر داره (پیش‌فرض میلی‌متر). ذخیره‌ی داخلی و جدول‌های خروجی همیشه میلی‌متر می‌مونن و فرمول‌ها هم با میلی‌متر حساب می‌شن.</div></div>';
+  h+='<div class="card"><h4>پشتیبان، ورودی و خروجی</h4><div class="hint">همه‌چیز در همین مرورگر ذخیره می‌شه (بدون سرور). برای انتقال به سیستم دیگه یا نگه‌داری نسخه پشتیبان، از این سه استفاده کن:</div>'+
+     '<div class="row" style="flex-wrap:wrap;gap:8px">'+
+     '<button class="btn2" onclick="App.expJSON()">⬇ پشتیبان JSON</button>'+
+     '<button class="btn2" onclick="document.getElementById(\'impjson\').click()">⬆ بازیابی JSON</button>'+
+     '<button class="btn2" onclick="App.expHTML()">⬇ ذخیره در HTML (با داده‌ها)</button>'+
+     '<button class="btn2" onclick="App.loadDemo()">مثال نمونه (بازنشانی)</button>'+
+     '<button class="btn2 red" onclick="App.wipe()">پاک کردن همه داده‌ها</button></div>'+
+     '<input type="file" id="impjson" accept=".json,application/json" style="display:none" onchange="App.impJSON(this.files[0]);this.value=\'\'">'+
+     '<div class="hint">JSON: فایل کوچکِ داده برای بکاپ و بازگردانی. HTML: کل برنامه به‌همراه داده‌ها — کافیه فایل رو باز کنی، هم برنامه‌ست هم اطلاعاتت. PDF هم از هر بخش با دکمه «چاپ / PDF» گرفته می‌شه.</div></div>';
+  return h;
+}
+
+/* ============================= خروجی‌ها ============================= */
+function consumptionRows(g,p,hw,fmt){
+  fmt=fmt||raw;
+  const r=[['خطوط شیار',fmt(g.lines)],['متر طول شیار',fmt(g.g!==undefined?g.g:g.m)],['متر طول PVC',fmt(p.m)]];
+  hw.forEach(x=>r.push([x.name,fmt(x.cnt)]));
+  return r;
+}
+function sectionsSingle(res,fmt){
+  fmt=fmt||raw;
+  const s=[];
+  s.push({t:'لیست برش',h:['نام قطعه','جنس','ضخامت','تعداد','طول (مم)','عرض (مم)','شیار','PVC'],
+    r:res.rows.map(r=>[r.piece,r.material,r.thk||'',fmt(r.cnt),fmt(r.len),fmt(r.wid),r.gdesc||'—',r.pdesc||'—'])});
+  s.push({t:'جمع‌بندی متریال',h:['جنس','ضخامت','مترمربع','تعداد ورق'],
+    r:res.mats.map(x=>[x.name,x.thk||'',fmt(x.area),fmt(x.sheets)]).concat(
+      res.mats.length?[['جمع کل','',fmt(res.mats.reduce((a,x)=>a+x.area,0)),fmt(res.mats.reduce((a,x)=>a+x.sheets,0))]]:[])});
+  s.push({t:'جمع‌بندی شیار، PVC و یراق',h:['مورد','مقدار'],r:consumptionRows(res.groove,res.pvc,res.hw,fmt)});
+  if(res.errors && res.errors.length) s.push({t:'خطاها',h:['پیام'],r:res.errors.map(e=>[e])});
+  return s;
+}
+function aggregate(pr){
+  const cut=[], mats={}, hw={};
+  let gl=0,gm=0,pm=0; const errors=[];
+  pr.items.forEach(it=>{
+    const m=S.models.find(x=>x.id===it.modelId);
+    if(!m){ errors.push('یکی از کابینت‌ها به مدل حذف‌شده وصله.'); return; }
+    const cab=m.name+(freeSummary(m,it.values)?' ('+freeSummary(m,it.values)+')':'');
+    let res;
+    try{ res=calculate(m,it.values); }
+    catch(e){ errors.push(cab+': '+e.message); return; }
+    (res.errors||[]).forEach(e=>errors.push(cab+': '+e));
+    res.rows.forEach(r=>{ cut.push(Object.assign({},r,{cab:cab})); });
+    res.mats.forEach(x=>{ const k=x.name+'|'+x.thk; if(!mats[k]) mats[k]={name:x.name,thk:x.thk,area:0}; mats[k].area+=x.area; });
+    gl+=res.groove.lines; gm+=res.groove.m; pm+=res.pvc.m;
+    res.hw.forEach(x=>{ hw[x.name]=(hw[x.name]||0)+x.cnt; });
+  });
+  const st=S.settings, sheetArea=(st.sheetL*st.sheetW)/1e6;
+  const matRows=Object.keys(mats).map(k=>{
+    const x=mats[k];
+    return {name:x.name,thk:x.thk,area:x.area,sheets: sheetArea>0?Math.ceil(x.area*(1+(st.waste||0)/100)/sheetArea):0};
+  }).sort((a,b)=>b.area-a.area);
+  return {cut:cut,mats:matRows,groove:{lines:gl,m:gm},pvc:{m:pm},
+    hw:Object.keys(hw).map(k=>({name:k,cnt:hw[k]})),errors:[...new Set(errors)]};
+}
+function sectionsAggregate(agg,fmt){
+  fmt=fmt||raw;
+  const s=[];
+  s.push({t:'لیست برش کل پروژه',h:['کابینت','نام قطعه','جنس','ضخامت','تعداد','طول','عرض','شیار','PVC'],
+    r:agg.cut.map(r=>[r.cab,r.piece,r.material,r.thk||'',fmt(r.cnt),fmt(r.len),fmt(r.wid),r.gdesc||'—',r.pdesc||'—'])});
+  s.push({t:'جمع‌بندی متریال',h:['جنس','ضخامت','مترمربع','تعداد ورق'],
+    r:agg.mats.map(x=>[x.name,x.thk||'',fmt(x.area),fmt(x.sheets)]).concat(
+      agg.mats.length?[['جمع کل','',fmt(agg.mats.reduce((a,x)=>a+x.area,0)),fmt(agg.mats.reduce((a,x)=>a+x.sheets,0))]]:[])});
+  s.push({t:'جمع‌بندی شیار، PVC و یراق',h:['مورد','مقدار'],r:consumptionRows(agg.groove,agg.pvc,agg.hw,fmt)});
+  if(agg.errors.length) s.push({t:'خطاها',h:['پیام'],r:agg.errors.map(e=>[e])});
+  return s;
+}
+function sectionsTableHTML(secs){
+  let h='';
+  secs.forEach(s=>{
+    h+='<h4>'+esc(s.t)+'</h4>';
+    if(!s.r.length){ h+='<div class="emptymini">چیزی ثبت نشده.</div>'; return; }
+    h+='<div class="tw"><table><tr>'+s.h.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr>'+
+      s.r.map(r=>'<tr>'+r.map(c=>'<td class="wrap">'+esc(c)+'</td>').join('')+'</tr>').join('')+'</table></div>';
+  });
+  return h;
+}
+function flatten(title,secs){
+  const out=[[title],[]];
+  secs.forEach(s=>{ out.push([s.t]); out.push(s.h); s.r.forEach(r=>out.push(r)); out.push([]); });
+  return out;
+}
+function download(name,content,mime){
+  const blob=new Blob([content],{type:mime});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },3000);
+}
+function toCSV(rows){
+  return '\uFEFF'+rows.map(r=>r.map(c=>{ c=String(c==null?'':c); return /[",\n\r]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c; }).join(',')).join('\r\n');
+}
+function toXLS(title,secs){
+  let h='<html><head><meta charset="utf-8"></head><body dir="rtl"><h3>'+esc(title)+'</h3>';
+  secs.forEach(s=>{
+    h+='<p><b>'+esc(s.t)+'</b></p><table border="1"><tr>'+s.h.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr>';
+    s.r.forEach(r=>{ h+='<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>'; });
+    h+='</table><br>';
+  });
+  h+='</body></html>';
+  return h;
+}
+function doPrint(title,secs){
+  let h='<div class="rpt"><h1>'+esc(title)+'</h1><div>'+esc(nowStr())+'</div>';
+  secs.forEach(s=>{
+    h+='<h3>'+esc(s.t)+'</h3><table><tr>'+s.h.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr>';
+    s.r.forEach(r=>{ h+='<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>'; });
+    h+='</table>';
+  });
+  h+='</div>';
+  document.getElementById('printArea').innerHTML=h;
+  window.print();
+}
+function buildExport(scope){
+  if(scope==='single'){
+    if(!V.calcRes) return null;
+    const m=S.models.find(x=>x.id===V.calcModelId);
+    return {title:'محاسبه '+(m?m.name:'')+' — '+nowStr(),secs:sectionsSingle(V.calcRes),
+      base:'calc-'+(m?m.name:'model')};
+  }
+  if(scope==='inv'){
+    const pr=S.projects.find(p=>p.id===V.projectId);
+    if(!pr) return null;
+    return {title:'فاکتور پروژه '+pr.name+' — '+nowStr(),secs:sectionsInvoice(pr),
+      base:'invoice-'+pr.name};
+  }
+  const pr=S.projects.find(p=>p.id===V.projectId);
+  if(!pr) return null;
+  return {title:'پروژه '+pr.name+' — '+nowStr(),secs:sectionsAggregate(aggregate(pr)),
+    base:'project-'+pr.name};
+}
+
+/* ============================= اکشن‌ها ============================= */
+const App={
+  go(tab){ V.tab=tab; render(); },
+
+  /* دسته‌ها */
+  addCat(name){
+    name=String(name||'').trim(); if(!name) return;
+    S.categories.push({id:uid(),name:name}); save(); render();
+  },
+  editCat(id){ V.editCat = V.editCat===id?null:id; render(); },
+  setCatName(id,v){ const c=S.categories.find(x=>x.id===id); if(c){ c.name=v; save(); } },
+  stopCatEdit(){ V.editCat=null; save(); render(); },
+  delCat(id){
+    if(!confirm('دسته، مدل‌هایش و کابینت‌های پروژه که از این مدل‌ها استفاده می‌کنن حذف بشن؟')) return;
+    const ids=S.models.filter(m=>m.catId===id).map(m=>m.id);
+    S.models=S.models.filter(m=>m.catId!==id);
+    S.categories=S.categories.filter(c=>c.id!==id);
+    S.projects.forEach(p=>{ p.items=p.items.filter(it=>ids.indexOf(it.modelId)<0); });
+    save(); render();
+  },
+  openModels(id){ V.catId=id; V.tab='models'; render(); },
+
+  /* مدل‌ها */
+  addModel(name){
+    name=String(name||'').trim(); if(!name) return;
+    const m={id:uid(),catId:V.catId,name:name,inputs:[],vars:[],pieces:[],hw:[]};
+    S.models.push(m); save();
+    V.modelId=m.id; V.tab='editor'; V.openPiece=null; render();
+  },
+  editModel(id){ const m=S.models.find(x=>x.id===id); if(!m) return; V.modelId=id; V.catId=m.catId; V.openPiece=null; V.formCheck=null; V.tab='editor'; render(); },
+  checkFormulas(){
+    const m=S.models.find(x=>x.id===V.modelId); if(!m) return;
+    let errs=[];
+    try{ const r=calculate(m,{}); errs=(r.errors||[]).slice(); }
+    catch(e){ errs=[e.message]; }
+    V.formCheck = errs.length ? {ok:false,list:errs} : {ok:true,list:[]};
+    toast(errs.length ? (errs.length+' فرمول خطا دارد') : 'همه فرمول‌ها سالم ✓');
+    render();
+  },
+  copyModel(id){
+    const src=S.models.find(x=>x.id===id); if(!src) return;
+    const c=JSON.parse(JSON.stringify(src));
+    c.id=uid(); c.name=src.name+' (کپی)';
+    (c.inputs||[]).forEach(x=>x.id=uid());
+    (c.vars||[]).forEach(x=>x.id=uid());
+    (c.pieces||[]).forEach(x=>x.id=uid());
+    (c.hw||[]).forEach(x=>x.id=uid());
+    S.models.push(c); save(); render(); toast('مدل کپی شد');
+  },
+  delModel(id){
+    const m=S.models.find(x=>x.id===id); if(!m) return;
+    let n=0; S.projects.forEach(p=>{ n+=p.items.filter(it=>it.modelId===id).length; });
+    const msg = n ? 'مدل و '+n+' کابینتی که ازش استفاده می‌کنن حذف بشن؟' : 'مدل حذف بشه؟';
+    if(!confirm(msg)) return;
+    S.models=S.models.filter(x=>x.id!==id);
+    S.projects.forEach(p=>{ p.items=p.items.filter(it=>it.modelId!==id); });
+    save(); render();
+  },
+
+  /* ویرایشگر */
+  setM(f,v){ const m=S.models.find(x=>x.id===V.modelId); if(m){ m[f]=v; save(); } },
+  saveModel(){ save(); V.tab='models'; render(); toast('ذخیره شد'); },
+  addIn(){
+    const m=S.models.find(x=>x.id===V.modelId);
+    m.inputs.push({id:uid(),label:uniqLabel(m,'ورودی'),mode:'free',value:'0',formula:''}); save(); render();
+  },
+  insTok(tok){
+    const el=V.fmlEl;
+    if(!el || !document.contains(el)){ toast('اول داخل فیلد فرمول کلیک کن، بعد اسم رو بزن'); return; }
+    const v=String(el.value||'');
+    const s=(el.selectionStart==null?v.length:el.selectionStart);
+    const e2=(el.selectionEnd==null?v.length:el.selectionEnd);
+    let ins=tok;
+    const before=v.slice(0,s), after=v.slice(e2);
+    if(before && !/\s$/.test(before)) ins=' '+ins;
+    if(after && !/^[\s+\-*/()^%<>=,.)]/.test(after)) ins=ins+' ';
+    el.value=before+ins+after;
+    el.dispatchEvent(new Event('input',{bubbles:true}));
+    el.focus();
+    try{ el.setSelectionRange(before.length+ins.length, before.length+ins.length); }catch(_){}
+  },
+  setIn(id,f,v){
+    const m=S.models.find(x=>x.id===V.modelId); const i=m.inputs.find(x=>x.id===id); if(!i) return;
+    i[f] = (f==='value') ? toMM(v,uFi(i)) : v; save();
+    if(f==='mode') render();
+  },
+  delIn(id){ const m=S.models.find(x=>x.id===V.modelId); m.inputs=m.inputs.filter(x=>x.id!==id); save(); render(); },
+  addVar(){
+    const m=S.models.find(x=>x.id===V.modelId);
+    m.vars.push({id:uid(),label:uniqLabel(m,'متغیر'),formula:''}); save(); render();
+  },
+  setVar(id,f,v){ const m=S.models.find(x=>x.id===V.modelId); const x=m.vars.find(y=>y.id===id); if(x){ x[f]=v; save(); } },
+  delVar(id){ const m=S.models.find(x=>x.id===V.modelId); m.vars=m.vars.filter(x=>x.id!==id); save(); render(); },
+  addPiece(){
+    const m=S.models.find(x=>x.id===V.modelId);
+    const p={id:uid(),label:uniqLabel(m,'قطعه'),material:'',thk:'',countF:'1',lenF:'',widF:'',hw:[],
+      groove:{on:false,depth:'8',edges:{}},pvc:{on:false,thk:'2',edges:{}}};
+    m.pieces.push(p); V.openPiece=p.id; save(); render();
+  },
+  setP(id,f,v){
+    const m=S.models.find(x=>x.id===V.modelId); const p=m.pieces.find(x=>x.id===id); if(!p) return;
+    if(f==='_pvthk'){ if(!p.pvc) p.pvc={on:false,thk:'2',edges:{}}; p.pvc.thk=toMM(v); }
+    else p[f] = (f==='thk') ? toMM(v) : v;
+    save();
+    if(f==='label'){ const el=document.getElementById('ph_'+id); if(el) el.textContent=v; }
+  },
+  togglePiece(id){ V.openPiece = V.openPiece===id?null:id; render(); },
+  setGroove(id,f,v){
+    const m=S.models.find(x=>x.id===V.modelId); const p=m.pieces.find(x=>x.id===id); if(!p) return;
+    if(!p.groove) p.groove={on:false,depth:'8',edges:{}};
+    p.groove[f] = (f==='depth') ? toMM(v) : v; save();
+    if(f==='on') render();
+  },
+  setG(id,f,v){ const m=S.models.find(x=>x.id===V.modelId); const p=m.pieces.find(x=>x.id===id); if(p&&p.groove){ p.groove[f]=(f==='depth')?toMM(v):v; save(); } },
+  setPvc(id,f,v){
+    const m=S.models.find(x=>x.id===V.modelId); const p=m.pieces.find(x=>x.id===id); if(!p) return;
+    if(!p.pvc) p.pvc={on:false,thk:'2',edges:{}};
+    p.pvc[f]=v; save();
+    if(f==='on') render();
+  },
+  setEdge(id,kind,side,checked){
+    const m=S.models.find(x=>x.id===V.modelId); const p=m.pieces.find(x=>x.id===id); if(!p) return;
+    const obj = kind==='groove'?p.groove:p.pvc;
+    if(!obj.edges) obj.edges={};
+    obj.edges[side]=checked; save();
+  },
+  delPiece(id){ const m=S.models.find(x=>x.id===V.modelId); m.pieces=m.pieces.filter(x=>x.id!==id); save(); render(); },
+  copyPiece(id){
+    const m=S.models.find(x=>x.id===V.modelId); const p=m.pieces.find(x=>x.id===id); if(!p) return;
+    const c=JSON.parse(JSON.stringify(p)); c.id=uid();
+    let base=String(p.label||'قطعه'); if(base.slice(-4)===' کپی') base=base.slice(0,-4);
+    c.label=uniqLabel(m, base+' کپی');
+    (c.hw||[]).forEach(x=>x.id=uid());
+    m.pieces.splice(m.pieces.indexOf(p)+1,0,c);
+    V.openPiece=c.id; save(); render(); toast('کپی شد — اسم و ابعادش رو عوض کن');
+  },
+  addPieceToHw(id){
+    const m=S.models.find(x=>x.id===V.modelId); const p=m.pieces.find(x=>x.id===id); if(!p) return;
+    if(!m.hw) m.hw=[];
+    m.hw.push({id:uid(), label:uniqLabel(m,'یراق '+String(p.label||'قطعه')), formula:String(p.label||'')+'.تعداد'});
+    save(); render(); toast('یراق ساخته شد — اسمش رو عوض کن (مثلاً لولا) و فرمولش رو ویرایش کن');
+  },
+  addPHw(pid){
+    const m=S.models.find(x=>x.id===V.modelId); const p=m.pieces.find(x=>x.id===pid); if(!p) return;
+    if(!p.hw) p.hw=[];
+    p.hw.push({id:uid(),label:'',formula:'تعداد'}); save(); render();
+  },
+  setPHw(pid,hid,f,v){
+    const m=S.models.find(x=>x.id===V.modelId); const p=m.pieces.find(x=>x.id===pid); if(!p||!p.hw) return;
+    const x=p.hw.find(y=>y.id===hid); if(x){ x[f]=v; save(); }
+  },
+  delPHw(pid,hid){
+    const m=S.models.find(x=>x.id===V.modelId); const p=m.pieces.find(x=>x.id===pid); if(!p) return;
+    p.hw=(p.hw||[]).filter(x=>x.id!==hid); save(); render();
+  },
+  addHw(){
+    const m=S.models.find(x=>x.id===V.modelId);
+    m.hw.push({id:uid(),label:uniqLabel(m,'یراق'),formula:''}); save(); render();
+  },
+  setHw(id,f,v){ const m=S.models.find(x=>x.id===V.modelId); const x=m.hw.find(y=>y.id===id); if(x){ x[f]=v; save(); } },
+  delHw(id){ const m=S.models.find(x=>x.id===V.modelId); m.hw=m.hw.filter(x=>x.id!==id); save(); render(); },
+
+  /* محاسبه */
+  pickCat(id){ V.pickCat=id; render(); },
+  calcPick(id){ V.calcModelId=id; V.calcFree={}; V.calcRes=null; V.tab='calc'; render(); },
+  calcModel(id){ V.calcModelId=id; V.calcFree={}; V.calcRes=null; V.tab='calc'; render(); },
+  calcBack(){ V.calcModelId=null; V.calcRes=null; render(); },
+  setFree(id,v){ V.calcFree[id]=v; },
+  runCalc(){
+    const m=S.models.find(x=>x.id===V.calcModelId); if(!m) return;
+    const fv={}, byId={}; (m.inputs||[]).forEach(x=>byId[x.id]=x);
+    Object.keys(V.calcFree||{}).forEach(k=>{ const s=String(V.calcFree[k]==null?'':V.calcFree[k]).trim(); if(s!=='') fv[k]=toMM(s,uFi(byId[k])); });
+    try{ V.calcRes=calculate(m,fv); }
+    catch(e){ V.calcRes={rows:[],mats:[],groove:{lines:0,m:0},pvc:{m:0},hw:[],computed:[],errors:[e.message]}; }
+    render();
+    const el=document.querySelector('.err')||document.querySelector('.sumcards');
+    if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
+  },
+
+  /* پروژه‌ها */
+  addProject(name){
+    name=String(name||'').trim(); if(!name) return;
+    S.projects.push({id:uid(),name:name,items:[]}); save(); render();
+  },
+  openProject(id){ V.projectId=id; V.adding=false; V.editItem=null; V.expanded=null; V.showSummary=false; V.showInvoice=false; V.tab='project'; render(); },
+  delProject(id){ if(!confirm('پروژه حذف بشه؟')) return; S.projects=S.projects.filter(p=>p.id!==id); save(); render(); },
+  setPrjName(v){ const p=S.projects.find(x=>x.id===V.projectId); if(p){ p.name=v; save(); } },
+  startAdd(){ V.adding=true; V.editItem=null; V.addCat=null; V.addModelId=null; V.addFree={}; V.addMore=false; V.addDirty=false; render(); },
+  cancelAdd(){ V.adding=false; V.editItem=null; V.addMore=false; render(); },
+  setAddCat(id){ V.addCat=id; V.addModelId=null; V.addFree={}; V.addDirty=false; render(); },
+  setAddModel(id){ V.addModelId=id; V.addFree={}; V.addMore=false; V.addDirty=false; render(); focusAddInput(); },
+  setAddFree(id,v){ V.addFree[id]=v; V.addDirty=true; },
+  toggleAddMore(){ V.addMore=!V.addMore; render(); },
+  commitAdd(stay){
+    const pr=S.projects.find(p=>p.id===V.projectId); if(!pr) return;
+    const m=S.models.find(x=>x.id===V.addModelId); if(!m){ toast('اول مدل رو انتخاب کن'); return; }
+    const values={};
+    (m.inputs||[]).filter(i=>i.mode==='free').forEach(i=>{
+      values[i.id]=(V.addFree[i.id]!==undefined && String(V.addFree[i.id]).trim()!=='') ? String(toMM(V.addFree[i.id],uFi(i))) : String(i.value);
+    });
+    if(V.editItem){
+      const it=pr.items.find(x=>x.id===V.editItem);
+      if(it){ it.modelId=m.id; it.values=values; }
+      toast('کابینت به‌روزرسانی شد');
+      V.adding=false; V.editItem=null; V.addFree={}; V.addMore=false; V.addDirty=false;
+      save(); render();
+      return;
+    }
+    if(!stay && !V.addDirty){
+      // چیزی تایپ نشده (مثلاً همین الان با اینتر اضافه کردی) — فقط ببند، ردیف تکراری نساز
+      V.adding=false; V.addFree={}; V.addMore=false; V.addDirty=false;
+      toast('کابینت جدیدی وارد نشده بود — پنل بسته شد');
+      render();
+      return;
+    }
+    pr.items.push({id:uid(),modelId:m.id,values:values});
+    save();
+    if(stay){
+      // افزودن و بعدی: پنل باز می‌مونه، فقط مقدار اصلی به پیش‌فرض برمی‌گرده
+      V.addFree={}; V.addMore=false; V.addDirty=false;
+      toast('اضافه شد — طول بعدی رو وارد کن');
+      render(); focusAddInput();
+    }else{
+      V.adding=false; V.addFree={}; V.addMore=false; V.addDirty=false;
+      toast('به پروژه اضافه شد');
+      render();
+    }
+  },
+  editItemFn(id){
+    const pr=S.projects.find(p=>p.id===V.projectId); const it=pr.items.find(x=>x.id===id);
+    const m=S.models.find(x=>x.id===it.modelId); if(!m) return;
+    V.adding=true; V.editItem=id; V.addCat=m.catId; V.addModelId=m.id;
+    V.addFree={}; Object.assign(V.addFree,it.values||{});
+    const byId={}; (m.inputs||[]).forEach(x=>byId[x.id]=x);
+    Object.keys(V.addFree).forEach(k=>{ V.addFree[k]=toU(V.addFree[k],uFi(byId[k])); });
+    render();
+    const el=document.getElementById('addPanel'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  },
+  delItem(id){
+    const pr=S.projects.find(p=>p.id===V.projectId);
+    if(!confirm('این کابینت از پروژه حذف بشه؟')) return;
+    pr.items=pr.items.filter(x=>x.id!==id);
+    if(V.expanded===id) V.expanded=null;
+    save(); render();
+  },
+  toggleRow(id){ V.expanded = V.expanded===id?null:id; render(); },
+  toggleSummary(){ V.showSummary=!V.showSummary; if(V.showSummary){ V.expanded=null; V.showInvoice=false; } render(); },
+  toggleInvoice(){ V.showInvoice=!V.showInvoice; if(V.showInvoice){ V.showSummary=false; V.expanded=null; } render();
+    if(V.showInvoice){ const el=document.getElementById('invCard'); if(el) el.scrollIntoView({block:'nearest'}); } },
+  setInv(kind,key,fld,val){
+    const pr=S.projects.find(p=>p.id===V.projectId); if(!pr) return;
+    if(!pr.inv) pr.inv={mats:{},hw:{},groove:'',pvc:''};
+    if(kind==='mats'){ if(!pr.inv.mats) pr.inv.mats={}; if(!pr.inv.mats[key]) pr.inv.mats[key]={sheet:'',area:''}; pr.inv.mats[key][fld]=val; }
+    else if(kind==='hw'){ if(!pr.inv.hw) pr.inv.hw={}; pr.inv.hw[key]=val; }
+    else if(kind==='groove') pr.inv.groove=val;
+    else if(kind==='pvc') pr.inv.pvc=val;
+    save(); render();
+    const el=document.getElementById('invCard'); if(el) el.scrollIntoView({block:'nearest'});
+  },
+
+  /* تنظیمات */
+  setSt(f,v){ S.settings[f]=(f==='sheetL'||f==='sheetW') ? (toMM(v)||S.settings[f]) : num(v); save(); },
+  setUnit(u){
+    const oldF=uF(); S.settings.unit=u; const newF=uF();
+    const conv=(o)=>{ const r={}; Object.keys(o||{}).forEach(k=>{ const s=String(o[k]==null?'':o[k]).trim(); if(s===''||isNaN(parseFloat(s))) r[k]=o[k]; else r[k]=String(Math.round(parseFloat(s)*oldF/newF*100)/100); }); return r; };
+    V.calcFree=conv(V.calcFree); V.addFree=conv(V.addFree);
+    save(); render();
+  },
+  expJSON(){ download('kargah-backup-'+Date.now()+'.json',JSON.stringify(S,null,2),'application/json'); toast('فایل پشتیبان JSON ذخیره شد'); },
+  expHTML(){
+    const clone=document.documentElement.cloneNode(true);
+    const root=clone.querySelector('#app'); if(root) root.innerHTML='';
+    const pa=clone.querySelector('#printArea'); if(pa) pa.innerHTML='';
+    const old=clone.querySelector('#embdata'); if(old && old.parentNode) old.parentNode.removeChild(old);
+    const sc=document.createElement('script'); sc.type='application/json'; sc.id='embdata';
+    sc.textContent=JSON.stringify(S).replace(/<\//g,'<\\/');
+    const body=clone.querySelector('body')||clone;
+    const ref=body.querySelector('script:not([type])')||body.querySelector('script');
+    if(ref) body.insertBefore(sc, ref); else body.appendChild(sc);
+    download('kargah-'+Date.now()+'.html','<!DOCTYPE html>\n'+clone.outerHTML,'text/html;charset=utf-8');
+    toast('فایل HTML با داده‌ها ذخیره شد');
+  },
+  applyState(obj){
+    if(!obj || !obj.settings || !obj.categories || !obj.models || !obj.projects){ toast('این فایل پشتیبان کارگاه نیست'); return false; }
+    S=obj;
+    V.projectId=null; V.adding=false; V.editItem=null; V.expanded=null;
+    V.showSummary=false; V.showInvoice=false; V.tab='cats'; V.catId=null; V.modelId=null;
+    save(); render(); toast('اطلاعات بازیابی شد');
+    return true;
+  },
+  impJSON(file){
+    if(!file) return;
+    const fr=new FileReader();
+    fr.onload=function(){
+      let d=null;
+      try{ d=JSON.parse(fr.result); }catch(e){ toast('JSON نامعتبر: '+e.message); return; }
+      if(!d || !d.settings || !d.categories || !d.models || !d.projects){ toast('این فایل پشتیبان کارگاه نیست'); return; }
+      if(!confirm('اطلاعات فعلی با این فایل جایگزین بشه؟')) return;
+      App.applyState(d);
+    };
+    fr.readAsText(file);
+  },
+  loadDemo(){
+    if(!confirm('داده‌های فعلی با مثال نمونه جایگزین بشه؟')) return;
+    S=JSON.parse(JSON.stringify(DEMO)); save();
+    V={tab:'cats',catId:null,modelId:null,openPiece:null,projectId:null,calcModelId:null,calcFree:{},calcRes:null,adding:false,addCat:null,addModelId:null,addFree:{},editItem:null,expanded:null,showSummary:false,editCat:null};
+    render(); toast('مثال نمونه بارگذاری شد');
+  },
+  wipe(){ if(!confirm('همه دسته‌ها، مدل‌ها و پروژه‌ها پاک بشن؟')) return; localStorage.removeItem(LS_KEY); S=JSON.parse(JSON.stringify(DEF)); V={tab:'cats',catId:null,modelId:null,openPiece:null,projectId:null,calcModelId:null,calcFree:{},calcRes:null,adding:false,addCat:null,addModelId:null,addFree:{},editItem:null,expanded:null,showSummary:false,editCat:null}; render(); },
+
+  /* خروجی‌ها */
+  print(scope){ const e=buildExport(scope); if(!e){ toast('چیزی برای چاپ نیست'); return; } doPrint(e.title,e.secs); },
+  expCSV(scope){ const e=buildExport(scope); if(!e){ toast('چیزی نیست'); return; } download(e.base+'.csv',toCSV(flatten(e.title,e.secs)),'text/csv;charset=utf-8'); toast('فایل CSV ذخیره شد'); },
+  expXLS(scope){ const e=buildExport(scope); if(!e){ toast('چیزی نیست'); return; } download(e.base+'.xls',toXLS(e.title,e.secs),'application/vnd.ms-excel'); toast('فایل Excel ذخیره شد'); }
+};
+
+document.addEventListener('focusin',function(e){
+  const t=e.target;
+  if(t && t.nodeType===1 && t.hasAttribute && t.hasAttribute('data-fml')) V.fmlEl=t;
+});
+window.App=App;
+window.render=render;
+const _em=document.getElementById('embdata'); /* داده‌ی جاسازی‌شده در فایل HTML ذخیره‌شده */
+if(_em){
+  try{
+    const _d=JSON.parse(_em.textContent);
+    if(_d && _d.settings && _d.categories){
+      const _had=!!localStorage.getItem(LS_KEY);
+      if(!_had){ S=_d; save(); }
+      else if(JSON.stringify(_d)!==JSON.stringify(S) && confirm('این فایل HTML داده داره. جایگزین اطلاعات فعلی این مرورگر بشه؟')){
+        S=_d; save();
+      }
+    }
+  }catch(e){ if(window.console) console.warn('embdata',e); }
+}
+render();
+if(!localStorage.getItem(LS_KEY)){
+  save();
+  setTimeout(()=>toast('یک مدل مثال از قبل پر شده — ببین هر بخش چطوری پر می‌شه'),400);
+}
+</script>
+
+<script>
+/* ماژول آنالیز: ثبت service worker (فقط http/https) — سوییس قدیمی همین ماژول رو جایگزین و پاک می‌کنه */
+if ('serviceWorker' in navigator && (location.protocol==='http:'||location.protocol==='https:')) {
+  window.addEventListener('load', function(){ navigator.serviceWorker.register('./sw.js').catch(function(){}); });
+}
+</script>
+</body>
 </html>

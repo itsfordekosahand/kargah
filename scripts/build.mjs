@@ -47,6 +47,16 @@ for (const name of MODULES) {
     continue
   }
   const nm = path.join(dir, 'node_modules')
+  // ماژول استاتیک (مثلاً «آنالیز» که تک‌فایل شده): بدون Vite — همان پوشه مستقیم کپی می‌شود
+  if (!existsSync(path.join(dir, 'vite.config.js'))) {
+    console.log(`… استاتیک ${name} (بدون بیلد)`)
+    cpSync(dir, path.join(ASSETS, name), {
+      recursive: true,
+      filter: (src) => path.basename(src) !== 'node_modules'
+    })
+    console.log(`✓ ${name} → assets/${name}/`)
+    continue
+  }
   if (!existsSync(nm)) {
     console.log(`… npm install (${name})`)
     run('npm', ['install', '--no-audit', '--no-fund'], dir)
